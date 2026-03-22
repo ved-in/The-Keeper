@@ -2,15 +2,12 @@ import pygame
 import core.day_cycle as day_cycle
 import ui.dialogue as dialogue
 import core.player as player
+import scenes.lighthouse as lighthouse
+import constants
 
 done = False
 _player = player.make_player()
 
-# index: list of dialogues
-# index represents night number
-SCRIPTS = {
-    1: ["The beacon stutters.", "The rhythm is wrong."],
-}
 
 def init():
     global done, _player
@@ -32,8 +29,10 @@ def update(dt):
 def draw(screen):
     screen.fill((25, 20, 45))
     
+    lighthouse.draw(screen)
+    
     # beacon
-    pygame.draw.circle(screen, (255, 230, 120), (480, 200), 40)
+    pygame.draw.circle(screen, (255, 230, 120), (480 + player.ELEMENTS_OFFSET, 200), 40)
     # making it pulse would be nice
     
     # puts current night number on the top left of screen
@@ -43,7 +42,7 @@ def draw(screen):
     
     # load dialogues, later replace by tasks + dialogues ;)
     if not dialogue.active() and not done:
-        script = SCRIPTS.get(day_cycle.day, ["The dark holds its breath."])
+        script = constants.SCRIPTS.get(day_cycle.day, ["The dark holds its breath."])
         dialogue.show(script)
     
     # draws player and dialogues on the screen

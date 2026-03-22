@@ -1,13 +1,7 @@
-DAY_LENGTH = 10.0  # seconds
+import constants
 
 _elapsed = 0.0
 day = 1
-
-# changes color bw day and night. can maybe add an gradient change so i made it a dict for now
-SKY_COLORS = {
-    "day": (62, 75, 110),
-    "night": (25, 20, 45),
-}
 
 
 def init():
@@ -18,11 +12,11 @@ def init():
 
 def update(dt):
     global _elapsed
-    _elapsed = min(_elapsed + dt, DAY_LENGTH)
+    _elapsed = min(_elapsed + dt, constants.DAY_LENGTH)
 
 
 def progress():
-    return _elapsed / DAY_LENGTH
+    return _elapsed / constants.DAY_LENGTH
 
 
 def is_night():
@@ -36,4 +30,4 @@ def next_day():
 
 
 def sky_color():
-    return SKY_COLORS["night"] if is_night() else SKY_COLORS["day"]
+    return constants.SKY_COLORS["night"] if is_night() else constants.SKY_COLORS["day"]
