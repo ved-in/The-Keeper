@@ -1,6 +1,7 @@
 import pygame
 import constants
 import core.view as view
+import core.animations as animations
 
 _world_offset = 0.0
 
@@ -22,6 +23,15 @@ def update(p, dt):
     global _world_offset
     keys = pygame.key.get_pressed()
     direction = int(keys[pygame.K_LEFT] or keys[pygame.K_a]) - int(keys[pygame.K_RIGHT] or keys[pygame.K_d])
+    
+    new_state = "walk" if direction else "idle"
+    if p.get("anim_state") != new_state:
+        p["anim_state"] = new_state
+        animations.reset("mc")  # reset frame to 0 on state change
+    
+    p["moving"] = bool(direction)
+    p["facing_left"] = direction > 0 if direction else p.get("facing_left", False)
+    
     if not direction:
         return
 
@@ -34,6 +44,10 @@ def update(p, dt):
 
 
 def draw(screen, p):
-    rect = view.rect(p["x"], p["y"], p["w"], p["h"])
-    pygame.draw.rect(screen, (220, 200, 170), rect)
-    return rect
+    frame = animations.get_frame("mc", "walk" if p.get("moving") else "idle", flip=p.get("facing_left", False))
+    pos = view.point(p["x"], p["y"])
+    if frame:
+        pos = view.point(p["x"], p["y"])
+        screen.blit(frame, pos)
+    else:
+        pygame.draw.rect(screen, (220, 200, 170), view.rect(p["x"], p["y"], p["w"], p["h"]))

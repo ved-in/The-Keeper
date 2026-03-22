@@ -22,6 +22,9 @@ You are the keeper of a lighthouse in a world where the sun never fully sets. Th
 - [x] Custom font support from `assets/fonts`
 - [x] Fixed display modes with `F11`: windowed, borderless, fullscreen
 - [x] Viewport scaling helper for consistent framing across display modes (`core/view.py`)
+- [x] Ground now has texture
+- [x] Added animations for entities `core/animations.py`
+- [x] Fixed bug where night started before the timer gets full
 
 ## To Add
 

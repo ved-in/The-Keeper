@@ -3,6 +3,7 @@ import scenes.lighthouse as lighthouse
 import scenes.day as day
 import scenes.nightfall as nightfall
 import scenes.opening as opening
+import core.animations as animations
 
 SCENES = {
     "opening": opening,
@@ -17,6 +18,7 @@ def init():
     day_cycle.init()
     lighthouse.init()
     day.init()
+    animations.load_all()
     switch("opening")
 
 
@@ -43,7 +45,8 @@ def update(dt):
         return
 
     day_cycle.update(dt)
-
+    animations.update(dt)
+    
     if day_cycle.is_night() and scene == "lighthouse":
         switch("nightfall")
 
