@@ -7,8 +7,10 @@ import constants
 import ui.dialogue as dialogue
 import ui.hud as hud
 
+# set to True when the player finishes reading, signals game.py to advance the day
 done = False
 _player = player.make_player()
+# tracks total time spent in this scene, used to drive the beacon pulse animation
 _t = 0.0
 
 
@@ -17,12 +19,14 @@ def init():
     done = False
     _player = player.make_player()
     _t = 0.0
+    # load the correct night script as soon as the scene starts
     dialogue.show(constants.SCRIPTS.get(day_cycle.day, constants.FALLBACK_NIGHT_SCRIPT), style="thought")
 
 
 def handle_event(event):
     global done
     if event.type == pygame.KEYDOWN and event.key in constants.ADVANCE_KEYS:
+        # advance returns False when all lines have been read
         if not dialogue.advance():
             done = True
 
@@ -31,6 +35,7 @@ def update(dt):
     global _t
     _t += dt
     dialogue.update(dt)
+    # block player movement while the dialogue is showing
     if not dialogue.active():
         player.update(_player, dt)
 
@@ -39,6 +44,7 @@ def draw(screen):
     screen.fill(constants.SKY_COLORS["night"])
     lighthouse.draw(screen)
 
+    # sin wave gives a smooth 0 to 1 to 0 pulse value
     pulse = (math.sin(_t * 3.2) + 1.0) * 0.5
     lighthouse.draw_beacon(
         screen,
