@@ -3,21 +3,45 @@ import core.player as player
 import constants
 import core.view as view
 
-GROUND          = (0, constants.GROUND_Y, view.BASE_W, 140)
+import pytmx
+
+GROUND          = (-250, constants.GROUND_Y, view.BASE_W, 140)
 TOWER           = (430, 120, 100, constants.GROUND_Y - 120)
 LANTERN         = (420, 100, 120, 40)
 BEACON          = (480, 200)
 BEACON_COLOR    = (255, 230, 120)
 
 
+def init():
+    global tmx_bg
+    tmx_bg = pytmx.load_pygame("assets/map/bg/untitled.tmx")
+
+
 def _rect(x_pos, y_pos, width, height):
     return view.rect(player.world_x(x_pos), y_pos, width, height)
 
+def draw_tmx(screen, tmx):
+    for layer in tmx.visible_layers:
+        if hasattr(layer, "data"):
+            for x, y, gid in layer:
+                if gid == 0:
+                    continue    
+                tile = tmx.get_tile_image_by_gid(gid)
+                if tile is None:
+                    continue    
+                scaled_tile = pygame.transform.scale(tile, (int(tmx.tilewidth * 2), int(tmx.tileheight * 2)))
+                screen.blit(scaled_tile, view.point(
+                    x * tmx.tilewidth * 1.2 - 300 + player._world_offset,
+                    y * tmx.tileheight * 1.2 - 120
+                ))    
 
 def draw(screen):
-    pygame.draw.rect(screen, (55, 50, 70), _rect(*GROUND))
+    #pygame.draw.rect(screen, (55, 50, 70), _rect(*GROUND))
+    # Hidden cuz now we have ground
     pygame.draw.rect(screen, (200, 195, 185), _rect(*TOWER))
     pygame.draw.rect(screen, (240, 220, 130), _rect(*LANTERN))
+    
+    draw_tmx(screen, tmx_bg)
 
 
 def beacon_center():

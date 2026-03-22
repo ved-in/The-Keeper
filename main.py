@@ -50,8 +50,8 @@ def main():
     clock = pygame.time.Clock()
     mode_index = 0
 
-    game.init()
     screen = set_mode(MODE_ORDER[mode_index])
+    game.init()
 
     running = True
     while running:

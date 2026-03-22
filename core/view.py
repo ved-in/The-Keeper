@@ -1,6 +1,6 @@
 import pygame
 
-BASE_W = 960
+BASE_W = 1000
 BASE_H = 540
 
 _scale = 1.0

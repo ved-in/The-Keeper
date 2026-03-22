@@ -1,4 +1,5 @@
 import core.day_cycle as day_cycle
+import scenes.lighthouse as lighthouse
 import scenes.day as day
 import scenes.nightfall as nightfall
 import scenes.opening as opening
@@ -14,6 +15,7 @@ scene = "opening"
 
 def init():
     day_cycle.init()
+    lighthouse.init()
     day.init()
     switch("opening")
 

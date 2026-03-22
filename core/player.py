@@ -25,8 +25,11 @@ def update(p, dt):
     if not direction:
         return
 
-    min_offset = -(view.BASE_W - p["w"] - p["x"])
-    max_offset = p["x"]
+    ground_start = -250
+    ground_end = ground_start + view.BASE_W
+    
+    min_offset = -(ground_end - p["w"] - p["x"])
+    max_offset = p["x"] - ground_start
     _world_offset = max(min_offset, min(_world_offset + (direction * constants.SPEED * dt), max_offset))
 
 
