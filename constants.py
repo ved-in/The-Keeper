@@ -1,3 +1,5 @@
+import pygame
+
 DAY_LENGTH = 10.0  # seconds
 
 # changes color bw day and night. can maybe add an gradient change so i made it a dict for now
@@ -7,21 +9,128 @@ SKY_COLORS = {
 }
 
 SPEED = 200
-
+GROUND_Y = 400
+ADVANCE_KEYS = (pygame.K_RETURN, pygame.K_SPACE)
 
 #   {"x": <x_pos>, "y": <y_pos>, "label": <text_label for when close>},
-INTERACTABLES = [
-]
+INTERACTABLES = []
 
 #   [<dialog1>, <dialog2>.... <dialogn>] must be string
 # This is for interactibles. When we get close to interactibles, we can press E or X or something to interact with them
-RESPONSES = [
-]
-
-GROUND_Y = 400
+RESPONSES =[]
 
 # index: list of dialogues
 # index represents night number
 SCRIPTS = {
     1: ["The beacon stutters.", "The rhythm is wrong."],
+}
+FALLBACK_NIGHT_SCRIPT = ["The dark holds its breath."]
+
+# Below  is responsible for Dialogue UI
+FONT_PATH = "assets/fonts/IMFellEnglish-Regular.ttf"
+PROMPT_TEXT = "SPACE / ENTER"
+DEFAULT_TYPE_SOUND = "assets/sound/33560__jobro__osd-text-9.wav"
+OPENING_LINES = [
+    "The world is dim, not dark.",
+    "Wind is low, slow.",
+    "The beacon pulses once, then hesitates.",
+    "You hear the soft click of the lens mechanism.",
+    "The sun hasn't set in 47 days.",
+]
+
+# these are the values that define the wider log box used in the opening
+LOG_DIALOGUE = {
+    "label": "KEEPER'S LOG",
+    "reveal_speed": 24.0,
+    "font_size": 16,
+    "hint_font_size": 9,
+    "side_margin": 118,
+    "bottom_offset": 124,
+    "height": 92,
+    "shadow_y": 4,
+    "corner_radius": 12,
+    "accent_h": 4,
+    "fade_time": 0.35,
+    "max_alpha": 220,
+    "tag_x": 18,
+    "tag_y": 10,
+    "text_x": 20,
+    "text_y": 18,
+    "text_y_with_label": 28,
+    "text_wrap_pad": 44,
+    "line_gap": 5,
+    "prompt_x": 18,
+    "prompt_y": 14,
+    "caret_w": 3,
+    "caret_trim": 6,
+    "caret_x": 6,
+    "caret_alpha": 160,
+    "caret_speed": 8.0,
+    "hint_size": 10,
+    "hint_x": 16,
+    "hint_y": 5,
+    "hint_alpha": 150,
+    "hint_speed": 6.0,
+    "glow_alpha": 58,
+    "text_shadow_alpha": 100,
+}
+
+# the gameplay bubble is much smaller, so its spacing lives separately
+THOUGHT_DIALOGUE = {
+    "font_size": 12,
+    "hint_font_size": 8,
+    "padding_x": 14,
+    "padding_y": 10,
+    "line_gap": 4,
+    "safe_margin": 12,
+    "tail_gap": 18,
+    "max_box_w": 240,
+    "extra_bottom": 8,
+    "shadow_y": 4,
+    "corner_radius": 16,
+    "tail_inset": 18,
+    "tail_mid_ratio": 0.55,
+    "tail_radii": (8, 5, 3),
+    "tail_head_offset": 6,
+    "fallback_anchor_x": 12,
+    "fallback_anchor_bottom": 84,
+    "fallback_anchor_w": 24,
+    "fallback_anchor_h": 40,
+}
+
+# opening.py only needs these scene-specific numbers now
+OPENING_SCENE = {
+    "veil": (10, 12, 20, 120),
+    "pulse_start": 6.0,
+    "pulse_end": 10.0,
+    "glow_radius": 54,
+    "glow_pulse": 16,
+    "glow_alpha": 18,
+    "glow_alpha_pulse": 40,
+    "beacon_radius": 34,
+    "beacon_pulse": 6,
+    "letterbox_h": 24,
+    "letterbox_ratio": 0.06,
+    "fade_in": 2.0,
+}
+
+# Centralized colors for the "log" style dialogue box
+LOG_COLORS = {
+    "bg": (14, 14, 24),             # dark blue
+    "shadow": (8, 8, 12),           # black
+    "border": (96, 92, 116),        # gray
+    "accent": (172, 152, 108),      # gold
+    "text": (230, 225, 210),        # white
+    "text_glow": (132, 126, 156),   # purple
+    "tag": (176, 166, 142),         # beige
+    "prompt": (150, 146, 164),      # light purple
+}
+
+# Centralized colors for the "thought" bubble style
+THOUGHT_COLORS = {
+    "bg": (238, 231, 214),          # light beige
+    "shadow": (52, 42, 46),         # dark brown
+    "border": (112, 96, 92),        # brown gray
+    "text": (34, 30, 36),           # near black
+    "prompt": (102, 94, 96),        # gray
 }
