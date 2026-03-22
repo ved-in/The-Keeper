@@ -1,14 +1,16 @@
 import core.day_cycle as day_cycle
 import scenes.day as day
 import scenes.nightfall as nightfall
+import scenes.opening as opening
 
-scene = "lighthouse"
+scene = "opening"
 
 
 def init():
     day_cycle.init()
     day.init()
     nightfall.init()
+    opening.init()
 
 
 def switch(name):
@@ -17,13 +19,21 @@ def switch(name):
 
 
 def handle_event(event):
-    if scene == "lighthouse":
+    if scene == "opening":
+        opening.handle_event(event)
+    elif scene == "lighthouse":
         day.handle_event(event)
     elif scene == "nightfall":
         nightfall.handle_event(event)
 
 
 def update(dt):
+    if scene == "opening":
+        opening.update(dt)
+        if opening.done:
+            switch("lighthouse")
+        return
+
     day_cycle.update(dt)
 
     if day_cycle.is_night() and scene == "lighthouse":
@@ -43,8 +53,11 @@ def draw(screen):
     screen.fill(day_cycle.sky_color())
     
     # depending on which scene it is, it draws corresponding scene
-    if scene == "lighthouse":
+    if scene == "opening":
+        opening.draw(screen)
+    elif scene == "lighthouse":
         day.draw(screen)
     elif scene == "nightfall":
         nightfall.draw(screen)
         
+

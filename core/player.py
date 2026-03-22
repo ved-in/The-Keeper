@@ -1,5 +1,6 @@
 import pygame
 import constants
+import core.view as view
 
 ELEMENTS_OFFSET = 0
 
@@ -16,10 +17,10 @@ def update(p, dt):
         ELEMENTS_OFFSET -= constants.SPEED * dt
         
     # Clamping player's x coords to the valid screen area
-    p["x"] = max(0, min(p["x"], 960 - p["w"]))
+    p["x"] = max(0, min(p["x"], view.BASE_W - p["w"]))
     
 
 def draw(screen, p):
-    rect = pygame.Rect(int(p["x"]), int(p["y"]), p["w"], p["h"])
+    rect = view.rect(p["x"], p["y"], p["w"], p["h"])
     pygame.draw.rect(screen, (220, 200, 170), rect)
-    
+    return rect
