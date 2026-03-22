@@ -67,3 +67,14 @@ def font(size, path=None):
             pass
     # fall back to the system monospace font if the custom font file is missing
     return pygame.font.SysFont("monospace", px)
+
+
+#opposite of the x, y and point functions. needed for click to move
+def un_x(screen_x):
+    return (screen_x - _off_x) / _scale
+
+def un_y(screen_y):
+    return (screen_y - _off_y) / _scale
+
+def un_point(screen_x, screen_y):
+    return (un_x(screen_x), un_y(screen_y))
