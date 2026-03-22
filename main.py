@@ -2,18 +2,9 @@ import pygame
 import core.game as game
 import core.view as view
 
-pygame.init()
-pygame.font.init()
-
 WINDOW_W = 1280
 WINDOW_H = 720
 MODE_ORDER = ["windowed", "borderless", "fullscreen"]
-mode_index = 0
-
-pygame.display.set_caption("The Keeper")
-clock = pygame.time.Clock()
-
-game.init()
 
 
 def set_mode(name):
@@ -30,16 +21,13 @@ def set_mode(name):
     return screen
 
 
-screen = set_mode(MODE_ORDER[mode_index])
-
-
-running = True
-while running:
+def run_frame(clock, screen, mode_index):
     dt = clock.tick(60) / 1000.0
+    running = True
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            running = False
+            return False, screen, mode_index
         if event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
             mode_index = (mode_index + 1) % len(MODE_ORDER)
             screen = set_mode(MODE_ORDER[mode_index])
@@ -51,5 +39,26 @@ while running:
     game.update(dt)
     game.draw(screen)
     pygame.display.flip()
+    return running, screen, mode_index
 
-pygame.quit()
+
+def main():
+    pygame.init()
+    pygame.font.init()
+    pygame.display.set_caption("The Keeper")
+
+    clock = pygame.time.Clock()
+    mode_index = 0
+
+    game.init()
+    screen = set_mode(MODE_ORDER[mode_index])
+
+    running = True
+    while running:
+        running, screen, mode_index = run_frame(clock, screen, mode_index)
+
+    pygame.quit()
+
+
+if __name__ == "__main__":
+    main()

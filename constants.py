@@ -1,4 +1,4 @@
-# constants.py
+import pygame
 
 DAY_LENGTH = 10.0  # seconds
 
@@ -10,6 +10,7 @@ SKY_COLORS = {
 
 SPEED = 200
 GROUND_Y = 400
+ADVANCE_KEYS = (pygame.K_RETURN, pygame.K_SPACE)
 
 #   {"x": <x_pos>, "y": <y_pos>, "label": <text_label for when close>},
 INTERACTABLES = []
@@ -23,6 +24,7 @@ RESPONSES =[]
 SCRIPTS = {
     1: ["The beacon stutters.", "The rhythm is wrong."],
 }
+FALLBACK_NIGHT_SCRIPT = ["The dark holds its breath."]
 
 # Below  is responsible for Dialogue UI
 FONT_PATH = "assets/fonts/IMFellEnglish-Regular.ttf"
@@ -132,4 +134,3 @@ THOUGHT_COLORS = {
     "text": (34, 30, 36),           # near black
     "prompt": (102, 94, 96),        # gray
 }
-

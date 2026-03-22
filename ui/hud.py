@@ -1,15 +1,33 @@
 import pygame
+import constants
 import core.day_cycle as day_cycle
 import core.view as view
 
-FONT_PATH = "assets/fonts/IMFellEnglish-Regular.ttf"
 
 def draw(screen):
-    frame = view.content_rect()
-    font = view.font(13, FONT_PATH)
-    
-    # day_cycle.day is a variable of current day number and we just blit it onto the screen
-    screen.blit(font.render(f"day {day_cycle.day}", True, (200, 195, 215)), (frame.x + view.scale(16), frame.y + view.scale(16)))
+    _draw_label(screen, f"day {day_cycle.day}", (200, 195, 215), 16, 16)
+    _draw_progress(screen)
 
-    # insert time bar here <-
-    # we will get current progress through day_cycle.progress function and make a bar for it
+
+def draw_night(screen):
+    _draw_label(screen, f"night {day_cycle.day}", (120, 110, 150), 20, 20)
+
+
+def _draw_label(screen, text, color, x_pos, y_pos):
+    font = view.font(13, constants.FONT_PATH)
+    screen.blit(font.render(text, True, color), view.point(x_pos, y_pos))
+
+
+def _draw_progress(screen):
+    border = view.rect(16, 38, 132, 10)
+    radius = max(1, view.scale(4))
+    inner = border.inflate(-view.scale(2), -view.scale(2))
+
+    pygame.draw.rect(screen, (28, 26, 38), border, border_radius=radius)
+    pygame.draw.rect(screen, (82, 76, 94), border, width=max(1, view.scale(1)), border_radius=radius)
+    pygame.draw.rect(screen, (66, 74, 100), inner, border_radius=radius)
+
+    fill = inner.copy()
+    fill.width = int(inner.width * day_cycle.progress())
+    if fill.width:
+        pygame.draw.rect(screen, (180, 166, 124), fill, border_radius=radius)
