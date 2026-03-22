@@ -36,7 +36,7 @@ You are the keeper of a lighthouse in a world where the sun never fully sets. Th
 
 ## Controls
 
-- `A / D` or `Left / Right`: move
+- ~~`A / D` or `Left / Right`: move~~ click to move
 - `Space / Enter`: advance dialogue
 - `F11`: cycle display mode
 
