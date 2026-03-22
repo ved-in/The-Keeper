@@ -16,6 +16,7 @@ def init():
 # updates player position using player.update function
 # the if block makes it so that player CANNOT move when dialogues are active
 def update(dt):
+    dialogue.update(dt)
     if not dialogue.active():
         player.update(_player, dt)
 
@@ -30,6 +31,6 @@ def handle_event(event):
 
 def draw(screen):
     lighthouse.draw(screen)
-    player.draw(screen, _player) # player rectangle
-    dialogue.draw(screen) # dialogue box
+    player_rect = player.draw(screen, _player) # player rectangle
+    dialogue.draw(screen, player_rect) # dialogue box
     hud.draw(screen) # draws hud
