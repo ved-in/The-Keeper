@@ -20,7 +20,7 @@ def progress():
 
 
 def is_night():
-    return progress() >= 0.75
+    return progress() >= 1.0
 
 
 def next_day():
