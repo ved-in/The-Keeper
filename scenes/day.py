@@ -2,18 +2,9 @@ import pygame
 import core.player as player
 import ui.dialogue as dialogue
 import ui.hud as hud
+import scenes.lighthouse as lighthouse
 
-
-#   {"x": <x_pos>, "y": <y_pos>, "label": <text_label for when close>},
-INTERACTABLES = [
-]
-
-#   [<dialog1>, <dialog2>.... <dialogn>] must be string
-# This is for interactibles. When we get close to interactibles, we can press E or X or something to interact with them
-RESPONSES = [
-]
-
-GROUND_Y = 400
+import constants
 
 
 def init():
@@ -38,9 +29,7 @@ def handle_event(event):
 
 
 def draw(screen):
-    pygame.draw.rect(screen, (55, 50, 70), pygame.Rect(0, GROUND_Y, 960, 140))
-    pygame.draw.rect(screen, (200, 195, 185), pygame.Rect(430, 120, 100, GROUND_Y - 120))
-    pygame.draw.rect(screen, (240, 220, 130), pygame.Rect(420, 100, 120, 40))
+    lighthouse.draw(screen)
     player.draw(screen, _player) # player rectangle
     dialogue.draw(screen) # dialogue box
     hud.draw(screen) # draws hud

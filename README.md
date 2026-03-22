@@ -12,16 +12,18 @@
 - [x] Dialogue box with SPACE/RETURN to advance (`ui/dialogue.py`)
 - [x] HUD with day counter (`ui/hud.py`)
 - [x] Night scripts per day number (`SCRIPTS` dict in nightfall)
+- [x] Made the game a side scroller
+- [x] Create new `scenes/lighthouse.py` for shared drawing: ground strip, tower, should be called by both day and night scenes
+- [x] Constants are now stored in `constants.py` 
+
 
 ## To Add
 
-- [ ] Create new `scenes/lighthouse.py` for shared drawing: ground strip, tower, should be called by both day and night scenes
 - [ ] Interactable objects in day scene (like a logbook)
 - [ ] NPC system which triggers chat on proximity
 - [ ] Beacon minigame: rhythm/timing
 - [ ] Night scripts for day 2 and day 3
 - [ ] Pulsing beacon glow in night scene
-- [ ] `GROUND_Y` is defined seperately in `player.py` and `lighthouse.py`, need a common `constants.py`
 
 ## Structure
 
