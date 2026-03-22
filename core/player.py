@@ -124,7 +124,7 @@ def draw(screen, p):
     frame = animations.get_frame(
         "mc", "walk" if p.get("moving") else "idle", flip=p.get("facing_left", False)
     )
-    pos = view.point(p["x"], p["y"])
+    pos = view.point(p["x"] - 10, p["y"])
     if frame:
         screen.blit(frame, pos)
     else:

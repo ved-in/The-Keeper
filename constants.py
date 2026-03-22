@@ -1,6 +1,6 @@
 import pygame
 
-DAY_LENGTH = 10.0  # seconds
+DAY_LENGTH = 1.0  # seconds
 
 # changes color bw day and night. can maybe add an gradient change so i made it a dict for now
 SKY_COLORS = {
@@ -22,20 +22,44 @@ RESPONSES =[]
 # index: list of dialogues
 # index represents night number
 SCRIPTS = {
-    1: ["The beacon stutters.", "The rhythm is wrong."],
+    1: ["The beacon stutters.", "The rhythm is wrong.", "Clean the lens. The salt crust is thick."],
+    2: ["A box washed ashore.", "Sealed with wax. Still warm.", "Recalibrate the mirror alignment.", "Someone left the angles wrong."],
+    3: ["You hear your name.", "No one is here.", "Log the weather observations.", "Wind from the north. Temperature dropping."],
+    4: ["The water is moving differently tonight.", "Replace the timing gear.", "The rhythm mechanism is worn."],
+    5: ["Something surfaces.", "You do not look directly at it.", "Clear the drain channels around the base.", "The water beneath looks darker than usual."],
+    6: ["A visitor left a note.", "It does not make sense.", "Inspect the foundation bolts.", "Two are loose. The rock beneath feels warmer than it should."],
+    7: ["The fog smells like burning.", "Refuel the reserve tank.", "The fuel smells different today. Almost sweet."],
+    8: ["The beacon lit itself tonight.", "You did not touch it.", "Replace the signal bell rope.", "The old one snapped overnight. You find no explanation."],
+    9: ["The ground moved.", "The ships on the horizon are gone.", "Polish the upper lens panels."],
+    10: ["Perform a full system check.", "Everything reads normal."],
 }
-FALLBACK_NIGHT_SCRIPT = ["The dark holds its breath."]
+
+FINISH_SCRIPTS = {
+    1: ["The beam looks steadier after.", "You feel good about this."],
+    2: ["The angles are correct now.", "You do not know why they were changed."],
+    3: ["The log is written.", "You close the book."],
+    4: ["The beacon pulses exactly right.", "You feel proud of the work."],
+    5: ["The channels are clear.", "You do not look at the water on the way back up."],
+    6: ["The bolts are tight.", "The structure feels solid.", "You do not mention the warmth in the log."],
+    7: ["The tank is full.", "You wash your hands twice."],
+    8: ["The new rope holds.", "You tie it twice to be sure."],
+    9: ["The glass is clean.", "Your reflection looks wrong for a moment. You keep polishing.", "You avoid looking at your reflection again."],
+    10: ["You write NOMINAL in the log. It is the last entry.", "You set down the pen.", "The lighthouse shakes."],
+}
+
+FALLBACK_NIGHT_SCRIPT = ["The night lasts longer than usual..."]
 
 # Below  is responsible for Dialogue UI
 FONT_PATH = "assets/fonts/IMFellEnglish-Regular.ttf"
 PROMPT_TEXT = "SPACE / ENTER"
 DEFAULT_TYPE_SOUND = "assets/sound/33560__jobro__osd-text-9.wav"
 OPENING_LINES = [
-    "The world is dim, not dark.",
-    "Wind is low, slow.",
-    "The beacon pulses once, then hesitates.",
-    "You hear the soft click of the lens mechanism.",
-    "The sun hasn't set in 47 days.",
+    "Your grandfather built this lighthouse.",
+    "Your father kept it running.",
+    "Now it's your turn.",
+    "The beacon keeps the ships safe.",
+    "You keep the beacon running.",
+    "That is enough...",
 ]
 
 # these are the values that define the wider log box used in the opening
@@ -133,4 +157,17 @@ THOUGHT_COLORS = {
     "border": (112, 96, 92),        # brown gray
     "text": (34, 30, 36),           # near black
     "prompt": (102, 94, 96),        # gray
+}
+
+RED_OVERLAY_ALPHA = {
+    1:  0,
+    2:  0,
+    3:  8,
+    4:  10,
+    5:  10,
+    6:  15,
+    7:  20,
+    8:  30,
+    9:  40,
+    10: 60,
 }

@@ -4,6 +4,7 @@ import ui.dialogue as dialogue
 import ui.hud as hud
 import scenes.lighthouse as lighthouse
 import constants
+import core.view as view
 
 
 def init():
@@ -27,9 +28,9 @@ def handle_event(event):
 
 
 def draw(screen):
-    # draw the shared lighthouse background first, then the player on top
     lighthouse.draw(screen)
-    # player.draw returns the screen rect of the player, needed to anchor the thought bubble
-    player_rect = player.draw(screen, _player)
-    dialogue.draw(screen, player_rect)
+    player.draw(screen, _player)
+
+def draw_ui(screen):
+    dialogue.draw(screen, view.rect(_player["x"], _player["y"], _player["w"], _player["h"]))
     hud.draw(screen)

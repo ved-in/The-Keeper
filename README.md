@@ -25,6 +25,8 @@ You are the keeper of a lighthouse in a world where the sun never fully sets. Th
 - [x] Ground now has texture
 - [x] Added animations for entities `core/animations.py`
 - [x] Fixed bug where night started before the timer gets full
+- [x] Red shade increasing day by day
+- [x] Fade in and fade out on scene switch 
 
 ## To Add
 

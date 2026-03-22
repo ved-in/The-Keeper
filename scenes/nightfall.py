@@ -6,6 +6,7 @@ import scenes.lighthouse as lighthouse
 import constants
 import ui.dialogue as dialogue
 import ui.hud as hud
+import core.view as view
 
 # set to True when the player finishes reading, signals game.py to advance the day
 done = False
@@ -58,7 +59,8 @@ def draw(screen):
         inner_glow_alpha_pulse=26,
         core_radius=40,
     )
+    player.draw(screen, _player)
 
+def draw_ui(screen):
     hud.draw_night(screen)
-    player_rect = player.draw(screen, _player)
-    dialogue.draw(screen, player_rect)
+    dialogue.draw(screen, view.rect(_player["x"], _player["y"], _player["w"], _player["h"]))
