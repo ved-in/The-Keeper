@@ -25,7 +25,8 @@ class Interactable:
         self.used_today = False
         
     def screen_rect(self, world_offset):
-        return view.rect(self.world_x + world_offset, self.y, self.w, self.h)
+        cx = self.world_x + world_offset
+        return view.rect(cx - self.w / 2, self.y - self.h / 2, self.w, self.h)
     
     def handle_click(self, pos, world_offset, day):
         if self.screen_rect(world_offset).collidepoint(pos):
@@ -43,12 +44,12 @@ class Interactable:
         if self.anim_key:
             frame = animations.get_frame(self.anim_key, "idle")
             if frame:
-                frame = pygame.transform.scale(frame, (rect.width, rect.height))
-                screen.blit(frame, rect)
+                # center the sprite on the rect center
+                screen.blit(frame, (rect.centerx - frame.get_width() // 2, rect.centery - frame.get_height() // 2))
         else:
             color = tuple(max(0, c - 40) for c in self.color) if self.used_today else self.color
             pygame.draw.rect(screen, color, rect, border_radius=3)
         if self.hovered and font:
             label = font.render(self.name, True, (240, 235, 210))
-            screen.blit(label, (rect.centerx - label.get_width() // 2, rect.top - label.get_height() - 4))
+            screen.blit(label, (rect.centerx - label.get_width() // 2, rect.top - label.get_height() - 6))
             

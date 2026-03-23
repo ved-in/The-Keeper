@@ -35,7 +35,7 @@ def init():
         Visitor(
             v["name"],
             v["world_x"], v["y"],
-            v.get("x_offset", 0), v.get("y_offset", 0),
+            v.get("y_offset", 0),
             v["lines"],
             anim_folder=v.get("anim_folder"), anim_scale=v.get("anim_scale", 1.0)
         )
@@ -50,6 +50,9 @@ def update(dt):
     # block player movement while a dialogue box is showing
     if not dialogue.active():
         player.update(_player, dt)
+        mouse_pos = pygame.mouse.get_pos()
+        for obj in _interactables + _active_visitors():
+            obj.update(mouse_pos, player._world_offset)
 
 def _active_visitors():
     return [v for v in _visitors if day_cycle.day in v.lines_by_day]
