@@ -27,9 +27,11 @@ You are the keeper of a lighthouse in a world where the sun never fully sets. Th
 - [x] Fixed bug where night started before the timer gets full
 - [x] Red shade increasing day by day
 - [x] Fade in and fade out on scene switch 
+- [x] Added interactible and visitor classes in `core/interactable.py`, `core/visitors.py`
 
-## To Add
+## To Add/Fix
 
+- [ ] dialogues of interactable and visitors show up near the player itself but should be near the clicked object
 - [ ] Interactable objects in day scene (logbook, maintenance table, etc.)
 - [ ] NPC system with proximity-triggered conversations
 - [ ] Beacon minigame for rhythm/timing repair

@@ -96,6 +96,8 @@ def update(dt):
     # when the player finishes reading the night dialogue, start the next day
     if scene == "nightfall" and nightfall.done:
         day_cycle.next_day()
+        for obj in day._interactables + day._visitors:
+            obj.reset_daily()
         switch("lighthouse")
 
 
