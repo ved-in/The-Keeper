@@ -32,6 +32,7 @@ You are the keeper of a lighthouse in a world where the sun never fully sets. Th
 ## To Add/Fix
 
 - [ ] dialogues of interactable and visitors show up near the player itself but should be near the clicked object
+- [ ] current arrangement of frame for visitors and interactibles is VERY hard coded type shit. Needs fixing
 - [ ] Interactable objects in day scene (logbook, maintenance table, etc.)
 - [ ] NPC system with proximity-triggered conversations
 - [ ] Beacon minigame for rhythm/timing repair

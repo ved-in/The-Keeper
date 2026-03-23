@@ -177,6 +177,10 @@ VISITORS = [
         "name": "Dr. Maren",
         "world_x": 300,
         "y": 360,
+        "anim_folder": "assets/characters/scientist",
+        "anim_scale": 3.0,
+        "x_offset": -30,
+        "y_offset": -25,
         "lines": {
             1: ["The perfect peace...", "The perfect quiet..."],
             2: ["That box on the rocks... I'd leave it alone."],
