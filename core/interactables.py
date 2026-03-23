@@ -3,6 +3,8 @@ import core.view as view
 import ui.dialogue as dialogue
 import core.animations as animations
 
+from typing import Optional, Callable
+
 
 class Interactable:    
     def __init__(self, name, world_x, y, w, h, lines_by_day, color=(140, 130, 120), anim_path=None, anim_scale=1.0):
@@ -15,6 +17,7 @@ class Interactable:
         self.color = color
         self.used_today = False
         self.hovered = False
+        self.on_use: Optional[Callable[[], None]] = None # F__K PYLANCEEE
         
         self.anim_key = None
         if anim_path:
@@ -30,6 +33,9 @@ class Interactable:
     
     def handle_click(self, pos, world_offset, day):
         if self.screen_rect(world_offset).collidepoint(pos):
+            if hasattr(self, "on_use") and self.on_use:
+                self.on_use()
+                return True
             lines = self.lines_by_day.get(day, self.lines_by_day.get("default", ["..."]))
             dialogue.show(lines, style="thought", reveal_speed=40)
             self.used_today = True

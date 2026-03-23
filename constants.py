@@ -1,6 +1,6 @@
 import pygame
 
-DAY_LENGTH = 100.0  # seconds
+DAY_LENGTH = 30.0  # seconds
 
 # changes color bw day and night. can maybe add an gradient change so i made it a dict for now
 SKY_COLORS = {
@@ -22,29 +22,29 @@ RESPONSES =[]
 # index: list of dialogues
 # index represents night number
 SCRIPTS = {
-    1: ["The beacon stutters.", "The rhythm is wrong.", "Clean the lens. The salt crust is thick."],
-    2: ["A box washed ashore.", "Sealed with wax. Still warm.", "Recalibrate the mirror alignment.", "Someone left the angles wrong."],
-    3: ["You hear your name.", "No one is here.", "Log the weather observations.", "Wind from the north. Temperature dropping."],
-    4: ["The water is moving differently tonight.", "Replace the timing gear.", "The rhythm mechanism is worn."],
-    5: ["Something surfaces.", "You do not look directly at it.", "Clear the drain channels around the base.", "The water beneath looks darker than usual."],
-    6: ["A visitor left a note.", "It does not make sense.", "Inspect the foundation bolts.", "Two are loose. The rock beneath feels warmer than it should."],
-    7: ["The fog smells like burning.", "Refuel the reserve tank.", "The fuel smells different today. Almost sweet."],
-    8: ["The beacon lit itself tonight.", "You did not touch it.", "Replace the signal bell rope.", "The old one snapped overnight. You find no explanation."],
-    9: ["The ground moved.", "The ships on the horizon are gone.", "Polish the upper lens panels."],
-    10: ["Perform a full system check.", "Everything reads normal."],
+    1: ["Sun set a bit early today.", "Better get to work."],
+    2: ["Sun went down ten minutes early today.", "The shadows look... stretched."],
+    3: ["The old generator is acting up.", "Got to hold it together."],
+    4: ["The light is casting a strange shadow on the water.", "It almost looks like rust.", "The daylight is barely lasting six hours now."],
+    5: ["The night is coming for good.", "Just keep the light spinning."],
+    6: ["Everything I touch is covered in this red dust.", "The sun didn't even rise until noon today.", "I can't see the dock without the lighthouse beam hitting it."],
+    7: ["I have to keep the light on.", "That's all there is."],
+    8: ["It's 3 PM and it's pitch black.", "Just gotta keep the light spinning."],
+    9: ["There are no boats left.", "The light is all we have."],
+    10: ["The nightfall is here.", "The ground screams."],
 }
 
 FINISH_SCRIPTS = {
-    1: ["The beam looks steadier after.", "You feel good about this."],
-    2: ["The angles are correct now.", "You do not know why they were changed."],
-    3: ["The log is written.", "You close the book."],
-    4: ["The beacon pulses exactly right.", "You feel proud of the work."],
-    5: ["The channels are clear.", "You do not look at the water on the way back up."],
-    6: ["The bolts are tight.", "The structure feels solid.", "You do not mention the warmth in the log."],
-    7: ["The tank is full.", "You wash your hands twice."],
-    8: ["The new rope holds.", "You tie it twice to be sure."],
-    9: ["The glass is clean.", "Your reflection looks wrong for a moment. You keep polishing.", "You avoid looking at your reflection again."],
-    10: ["You write NOMINAL in the log. It is the last entry.", "You set down the pen.", "The lighthouse shakes."],
+    1: ["The lens is clear.", "The light will carry further tonight."],
+    2: ["The pressure is logged.", "Numbers don't lie, even when they scare you."],
+    3: ["The cables hold.", "For now."],
+    4: ["The bulb is clean.", "The beam cuts through the dark like it should."],
+    5: ["The sensors are in place.", "The scientist seems satisfied."],
+    6: ["The shutters are locked.", "The red dust keeps falling."],
+    7: ["The doors are boarded.", "This is the last supply drop."],
+    8: ["The engine cools.", "The sound it made wasn't right."],
+    9: ["The light keeps spinning.", "Your arms are tired.", "It doesn't matter."],
+    10: ["...", "The lighthouse shakes."],
 }
 
 FALLBACK_NIGHT_SCRIPT = ["The night lasts longer than usual..."]
@@ -54,8 +54,8 @@ FONT_PATH = "assets/fonts/IMFellEnglish-Regular.ttf"
 PROMPT_TEXT = "SPACE / ENTER"
 DEFAULT_TYPE_SOUND = "assets/sound/33560__jobro__osd-text-9.wav"
 OPENING_LINES = [
-    "Your grandfather built this lighthouse.",
-    "Your father kept it running.",
+    "This lighthouse was built by your grandfather.",
+    "Your father maintained it.",
     "Now it's your turn.",
     "The beacon keeps the ships safe.",
     "You keep the beacon running.",
@@ -174,25 +174,28 @@ RED_OVERLAY_ALPHA = {
 
 VISITORS = [
     {
-        "name": "Dr. Maren",
+        "name": "Scientist",
         "world_x": 300,
         "y": 360,
         "anim_folder": "assets/characters/scientist",
         "anim_scale": 3.0,
         "y_offset": 23,
         "lines": {
-            1: ["The perfect peace...", "The perfect quiet..."],
-            2: ["That box on the rocks... I'd leave it alone."],
+            5: ["Excuse me, I need to deploy seismic and atmospheric sensors on your beach immediately.", "The sun is being eclipsed by something we can't see.", "The red refraction index is completely unprecedented.", "Night is coming for good."],
+            8: ["The readings are off the charts.", "The crust is fracturing because the gravity is shifting.", "It's 3 PM and it's pitch black."],
+            9: ["It's pulling the magnetic field apart!", "We have to leave!", "The sun didn't rise at all today!"],
+            10: ["...", ""],
             "default": ["Still running tests."],
         },
     },
     {
-        "name": "Old Piet",
+        "name": "Fisherman",
         "world_x": 650,
         "y": 360,
         "lines": {
-            1: ["Fish still bite. That's something."],
-            2: ["The birds stopped singing at dawn.", "This is weird..."],
+            1: ["Supply drop is on the dock.", "Sun is setting a bit early today, better get to work.", "I'll bring them in. Thanks for the run."],
+            3: ["You seeing this sky?", "Looks like someone spilled copper in the clouds.", "The water feels heavy.", "Stay safe out there. Giving me the creeps."],
+            7: ["I'm not sailing out here anymore.", "The water looks like blood and the engine is choking on red grit.", "This is my last drop."],
             "default": ["Hmph."],
         },
     },
@@ -222,3 +225,36 @@ INTERACTABLES = [
         },
     },
 ]
+
+DAY_TASKS = {
+    1: {"interactable": "Lens", "minigame": "minigame_clean"},
+}
+
+DAY_FINISH_SCRIPTS = {
+    1: ["The generator is running.", "Good enough for now."],
+    2: ["Pressure logged.", "The numbers are getting worse."],
+    3: ["Cables replaced.", "The light should hold another night."],
+    4: ["Bulb is clean.", "The beam is as strong as it can be."],
+    5: ["Sensors placed.", "The scientist seems to know something she isn't saying."],
+    6: ["Shutters locked.", "The red dust gets in everywhere."],
+    7: ["Doors boarded.", "Won't stop much, but it's something."],
+    8: ["Engine cooled down.", "It won't last much longer."],
+    9: ["Done.", "Hands are shaking."],
+    10: [],
+}
+
+# tasks to complete during the night, by day number
+# interactable: name of the interactable that triggers the minigame, or None
+# minigame: scene name to launch, or None if it's just dialogue
+NIGHT_TASKS = {
+    1: {"interactable": "Lens", "minigame": "minigame_clean"},
+    2: {"interactable": None,   "minigame": None},
+    3: {"interactable": None,   "minigame": None},
+    4: {"interactable": None,   "minigame": None},
+    5: {"interactable": None,   "minigame": None},
+    6: {"interactable": None,   "minigame": None},
+    7: {"interactable": None,   "minigame": None},
+    8: {"interactable": None,   "minigame": None},
+    9: {"interactable": None,   "minigame": None},
+    10: {"interactable": None,  "minigame": None},
+}

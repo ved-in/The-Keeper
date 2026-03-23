@@ -1,9 +1,11 @@
 import core.day_cycle as day_cycle
+import scenes.clean_minigame as clean_minigame
 import scenes.lighthouse as lighthouse
 import scenes.day as day
 import scenes.nightfall as nightfall
 import scenes.opening as opening
 import core.animations as animations
+import core.tasks as tasks
 import constants
 
 import pygame
@@ -13,10 +15,11 @@ SCENES = {
     "opening": opening,
     "lighthouse": day,
     "nightfall": nightfall,
+    "minigame_clean": clean_minigame,
 }
 
 # scenes in this set get fully re-initialised every time we switch to them
-RESET_ON_ENTER = {"opening", "nightfall"}
+RESET_ON_ENTER = {"opening", "minigame_clean"}
 
 scene = "opening"
 
@@ -37,6 +40,7 @@ def init():
     global scene
     scene = "opening"
     opening.init()
+
 
 def switch(name):
     global _pending_scene, _fading_in
@@ -67,6 +71,9 @@ def _current_scene():
 
 
 def handle_event(event):
+    # block all input during transitions so keypresses don't leak into the next scene
+    if _fading_in or _fading_out:
+        return
     _current_scene().handle_event(event)
 
 
@@ -89,15 +96,18 @@ def update(dt):
     
     # when the day timer hits night threshold, switch to the night scene
     if day_cycle.is_night() and scene == "lighthouse":
+        nightfall.init()
         switch("nightfall")
 
     _current_scene().update(dt)
 
     # when the player finishes reading the night dialogue, start the next day
-    if scene == "nightfall" and nightfall.done:
+    if scene == "nightfall" and nightfall.done and not _fading_in and not _fading_out:
         day_cycle.next_day()
+        tasks.reset_for_day()
         for obj in day._interactables + day._visitors:
             obj.reset_daily()
+            obj.on_use = None
         switch("lighthouse")
 
 
