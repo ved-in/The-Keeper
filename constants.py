@@ -1,6 +1,6 @@
 import pygame
 
-DAY_LENGTH = 1.0  # seconds
+DAY_LENGTH = 100.0  # seconds
 
 # changes color bw day and night. can maybe add an gradient change so i made it a dict for now
 SKY_COLORS = {
@@ -171,3 +171,55 @@ RED_OVERLAY_ALPHA = {
     9:  40,
     10: 60,
 }
+
+VISITORS = [
+    {
+        "name": "Dr. Maren",
+        "world_x": 300,
+        "y": 360,
+        "anim_folder": "assets/characters/scientist",
+        "anim_scale": 3.0,
+        "x_offset": -30,
+        "y_offset": -25,
+        "lines": {
+            1: ["The perfect peace...", "The perfect quiet..."],
+            2: ["That box on the rocks... I'd leave it alone."],
+            "default": ["Still running tests."],
+        },
+    },
+    {
+        "name": "Old Piet",
+        "world_x": 650,
+        "y": 360,
+        "lines": {
+            1: ["Fish still bite. That's something."],
+            2: ["The birds stopped singing at dawn.", "This is weird..."],
+            "default": ["Hmph."],
+        },
+    },
+]
+
+INTERACTABLES = [
+    {
+        "name": "Lens",
+        "world_x": 600,
+        "y": 330,
+        "w": 30,
+        "h": 30,
+        "lines": {
+            1: ["The salt crust is thick.", "You clean it carefully."],
+            "default": ["The lens is clean."],
+        },
+    },
+    {
+        "name": "Logbook",
+        "world_x": 200,
+        "y": 350,
+        "w": 24,
+        "h": 30,
+        "lines": {
+            1: ["You write the day's observations.", "Wind from the north."],
+            "default": ["Nothing new to log."],
+        },
+    },
+]
