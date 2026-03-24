@@ -1,0 +1,1 @@
+# Click red breaker switches to flip them green (random layout each time)

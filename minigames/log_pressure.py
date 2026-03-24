@@ -1,0 +1,1 @@
+# Read a barometer dial, type the number into the logbook, press Enter (will shake logbook if wrong value)
