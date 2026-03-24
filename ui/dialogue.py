@@ -19,12 +19,17 @@ _type_channel = None
 _word_index = -1
 _word_cooldown_end = 0.0
 _typing_word = False
+_anchor_rect = None   # current speaker's rect (set per-line for conversations)
+_npc_rect = None      # stored NPC rect for conversation sequences
 
 
 # loads a fresh dialogue sequence and remembers how it should be drawn
-def show(lines, style="thought", label="", reveal_speed=0.0, sound_path=None):
-    global _lines, _index, _style, _label, _reveal_speed, _time, _sound_path
-    _lines = list(lines)
+def show(lines, style="thought", label="", reveal_speed=0.0, sound_path=None, anchor_rect=None, npc_rect=None, default_speaker="npc"):
+    global _lines, _index, _style, _label, _reveal_speed, _time, _sound_path, _anchor_rect, _npc_rect
+    # Normalise to list of dicts: plain strings use default_speaker ("npc" for NPC calls, "player" for thought monologues)
+    _lines = [l if isinstance(l, dict) else {"text": l, "speaker": default_speaker} for l in lines]
+    _npc_rect = npc_rect
+    _anchor_rect = anchor_rect  # used for plain-string monologue
     _index = 0
     _style = style
     _label = label
@@ -50,6 +55,8 @@ def clear():
     _time = 0.0
     _line_time = 0.0
     _sound_path = None
+    _anchor_rect = None
+    _npc_rect = None
     _reset_typing()
 
 
@@ -101,14 +108,23 @@ def advance():
 
 
 # scenes call this every frame and the module decides which look to use
-def draw(screen, anchor_rect=None):
+def draw(screen, player_rect=None, npc_rect=None):
     if not active():
         return
 
     if _style == "log":
         _draw_log(screen)
     else:
-        _draw_thought(screen, anchor_rect)
+        # resolve which rect to anchor the bubble to this frame
+        resolved_npc = npc_rect or _npc_rect
+        if _anchor_rect is not None:
+            # plain monologue: use the stored anchor (could be NPC or player)
+            anchor = _anchor_rect
+        elif _current_speaker() == "npc":
+            anchor = resolved_npc
+        else:
+            anchor = player_rect
+        _draw_thought(screen, anchor)
 
 
 # opening uses the framed log panel near the bottom
@@ -386,7 +402,11 @@ def _start_line():
 
 
 def _current_line():
-    return _lines[_index]
+    return _lines[_index]["text"]
+
+
+def _current_speaker():
+    return _lines[_index].get("speaker", "player") if _lines else "player"
 
 
 # returns the portion of text that should currently be visible based on typewriter reveal

@@ -12,15 +12,22 @@ SPEED = 200
 GROUND_Y = 400
 ADVANCE_KEYS = (pygame.K_RETURN, pygame.K_SPACE)
 
-#   {"x": <x_pos>, "y": <y_pos>, "label": <text_label for when close>},
-INTERACTABLES = []
+# Below  is responsible for Dialogue UI
+FONT_PATH = "assets/fonts/IMFellEnglish-Regular.ttf"
+PROMPT_TEXT = "SPACE / ENTER"
+DEFAULT_TYPE_SOUND = "assets/sound/33560__jobro__osd-text-9.wav"
+OPENING_LINES = [
+    "This lighthouse was built by your grandfather.",
+    "Your father maintained it.",
+    "Now it's your turn.",
+    "The beacon keeps the ships safe.",
+    "You keep the beacon running.",
+    "That is enough...",
+]
 
-#   [<dialog1>, <dialog2>.... <dialogn>] must be string
-# This is for interactibles. When we get close to interactibles, we can press E or X or something to interact with them
-RESPONSES =[]
-
-# index: list of dialogues
-# index represents night number
+# ---------------------------------------------------------------------------
+# Night intro scripts — pure player thoughts, anchor to player
+# ---------------------------------------------------------------------------
 SCRIPTS = {
     1: ["Sun set a bit early today.", "Better get to work."],
     2: ["Sun went down ten minutes early today.", "The shadows look... stretched."],
@@ -34,6 +41,9 @@ SCRIPTS = {
     10: ["The nightfall is here.", "The ground screams."],
 }
 
+# ---------------------------------------------------------------------------
+# Night finish scripts — pure player thoughts shown after task completes
+# ---------------------------------------------------------------------------
 FINISH_SCRIPTS = {
     1: ["The lens is clear.", "The light will carry further tonight."],
     2: ["The pressure is logged.", "Numbers don't lie, even when they scare you."],
@@ -49,18 +59,176 @@ FINISH_SCRIPTS = {
 
 FALLBACK_NIGHT_SCRIPT = ["The night lasts longer than usual..."]
 
-# Below  is responsible for Dialogue UI
-FONT_PATH = "assets/fonts/IMFellEnglish-Regular.ttf"
-PROMPT_TEXT = "SPACE / ENTER"
-DEFAULT_TYPE_SOUND = "assets/sound/33560__jobro__osd-text-9.wav"
-OPENING_LINES = [
-    "This lighthouse was built by your grandfather.",
-    "Your father maintained it.",
-    "Now it's your turn.",
-    "The beacon keeps the ships safe.",
-    "You keep the beacon running.",
-    "That is enough...",
+# ---------------------------------------------------------------------------
+# Visitor dialogue — mix of plain strings (NPC only) and dicts (conversations)
+# Plain strings default to speaker="npc" in dialogue.show()
+# ---------------------------------------------------------------------------
+VISITORS = [
+    {
+        "name": "Scientist",
+        "world_x": 300,
+        "y": 360,
+        "anim_folder": "assets/characters/scientist",
+        "anim_scale": 3.0,
+        "y_offset": 23,
+        "lines": {
+            5: [
+                {"speaker": "npc",
+                 "text": "Excuse me, I need to deploy seismic and atmospheric sensors on your beach immediately."},
+                {"speaker": "player",
+                 "text": "Sure, just stay out of the lighthouse."},
+                {"speaker": "npc",
+                 "text": "The sun is being eclipsed by something we can't see."},
+                {"speaker": "npc",
+                 "text": "The red refraction index is completely unprecedented."},
+                {"speaker": "npc",
+                 "text": "Night is coming for good."},
+            ],
+            8: [
+                {"speaker": "npc",
+                 "text": "The readings are off the charts."},
+                {"speaker": "npc",
+                 "text": "The crust is fracturing because the gravity is shifting."},
+                {"speaker": "npc",
+                 "text": "It's 3 PM and it's pitch black."},
+                {"speaker": "player",
+                 "text": "Just gotta keep the light spinning."},
+            ],
+            9: [
+                {"speaker": "npc",
+                 "text": "It's pulling the magnetic field apart!"},
+                {"speaker": "npc",
+                 "text": "We have to leave!"},
+                {"speaker": "npc",
+                 "text": "The sun didn't rise at all today!"},
+                {"speaker": "player",
+                 "text": "There are no boats left."},
+                {"speaker": "player",
+                 "text": "The light is all we have."},
+            ],
+            10: [
+                {"speaker": "npc",
+                 "text": "..."},
+                {"speaker": "player",
+                 "text": "..."},
+            ],
+            "default": [
+                {"speaker": "npc",
+                 "text": "Still running tests."}
+            ],
+        },
+    },
+    {
+        "name": "Fisherman",
+        "world_x": 650,
+        "y": 360,
+        "lines": {
+            1: [
+                {"speaker": "npc",
+                 "text": "Supply drop is on the dock."},
+                {"speaker": "npc",
+                 "text": "Sun is setting a bit early today, better get to work."},
+                {"speaker": "player",
+                 "text": "I'll bring them in. Thanks for the run."},
+            ],
+            3: [
+                {"speaker": "npc",
+                 "text": "You seeing this sky?"},
+                {"speaker": "npc",
+                 "text": "Looks like someone spilled copper in the clouds."},
+                {"speaker": "npc",
+                 "text": "The water feels heavy."},
+                {"speaker": "player",
+                 "text": "Yeah, the old generator is acting up too."},
+                {"speaker": "npc",
+                 "text": "Stay safe out there man, giving me the creeps."},
+            ],
+            7: [
+                {"speaker": "npc",
+                 "text": "I'm not sailing out here anymore."},
+                {"speaker": "npc",
+                 "text": "The water looks like blood and the engine is choking on red grit."},
+                {"speaker": "npc",
+                 "text": "This is my last drop."},
+                {"speaker": "player",
+                 "text": "I understand."},
+                {"speaker": "player",
+                 "text": "I have to keep the light on."},
+            ],
+            "default": [
+                {"speaker": "npc",
+                 "text": "Hmph."}
+            ],
+        },
+    },
 ]
+
+# ---------------------------------------------------------------------------
+# Interactables — objects the player clicks in the world
+# Plain strings here are the player examining/interacting with an object,
+# so they anchor to the player by default (default_speaker="player" in handle_click)
+# ---------------------------------------------------------------------------
+INTERACTABLES = [
+    {
+        "name": "Lens",
+        "world_x": 600,
+        "y": 330,
+        "w": 30,
+        "h": 30,
+        "lines": {
+            1: ["The salt crust is thick.", "You clean it carefully."],
+            "default": ["The lens is clean."],
+        },
+    },
+    {
+        "name": "Logbook",
+        "world_x": 200,
+        "y": 350,
+        "w": 24,
+        "h": 30,
+        "lines": {
+            1: ["You write the day's observations.", "Wind from the north."],
+            "default": ["Nothing new to log."],
+        },
+    },
+]
+
+# ---------------------------------------------------------------------------
+# Tasks
+# ---------------------------------------------------------------------------
+DAY_TASKS = {
+    1: {"interactable": "Lens", "minigame": "minigame_clean"},
+}
+
+DAY_FINISH_SCRIPTS = {
+    1: ["The generator is running.", "Good enough for now."],
+    2: ["Pressure logged.", "The numbers are getting worse."],
+    3: ["Cables replaced.", "The light should hold another night."],
+    4: ["Bulb is clean.", "The beam is as strong as it can be."],
+    5: ["Sensors placed.", "The scientist seems to know something she isn't saying."],
+    6: ["Shutters locked.", "The red dust gets in everywhere."],
+    7: ["Doors boarded.", "Won't stop much, but it's something."],
+    8: ["Engine cooled down.", "It won't last much longer."],
+    9: ["Done.", "Hands are shaking."],
+    10: [],
+}
+
+NIGHT_TASKS = {
+    1: {"interactable": "Lens", "minigame": "minigame_clean"},
+    2: {"interactable": None,   "minigame": None},
+    3: {"interactable": None,   "minigame": None},
+    4: {"interactable": None,   "minigame": None},
+    5: {"interactable": None,   "minigame": None},
+    6: {"interactable": None,   "minigame": None},
+    7: {"interactable": None,   "minigame": None},
+    8: {"interactable": None,   "minigame": None},
+    9: {"interactable": None,   "minigame": None},
+    10: {"interactable": None,  "minigame": None},
+}
+
+# ---------------------------------------------------------------------------
+# UI config — these are purely visual tuning values, nothing story-related
+# ---------------------------------------------------------------------------
 
 # these are the values that define the wider log box used in the opening
 LOG_DIALOGUE = {
@@ -170,91 +338,4 @@ RED_OVERLAY_ALPHA = {
     8:  30,
     9:  40,
     10: 60,
-}
-
-VISITORS = [
-    {
-        "name": "Scientist",
-        "world_x": 300,
-        "y": 360,
-        "anim_folder": "assets/characters/scientist",
-        "anim_scale": 3.0,
-        "y_offset": 23,
-        "lines": {
-            5: ["Excuse me, I need to deploy seismic and atmospheric sensors on your beach immediately.", "The sun is being eclipsed by something we can't see.", "The red refraction index is completely unprecedented.", "Night is coming for good."],
-            8: ["The readings are off the charts.", "The crust is fracturing because the gravity is shifting.", "It's 3 PM and it's pitch black."],
-            9: ["It's pulling the magnetic field apart!", "We have to leave!", "The sun didn't rise at all today!"],
-            10: ["...", ""],
-            "default": ["Still running tests."],
-        },
-    },
-    {
-        "name": "Fisherman",
-        "world_x": 650,
-        "y": 360,
-        "lines": {
-            1: ["Supply drop is on the dock.", "Sun is setting a bit early today, better get to work.", "I'll bring them in. Thanks for the run."],
-            3: ["You seeing this sky?", "Looks like someone spilled copper in the clouds.", "The water feels heavy.", "Stay safe out there. Giving me the creeps."],
-            7: ["I'm not sailing out here anymore.", "The water looks like blood and the engine is choking on red grit.", "This is my last drop."],
-            "default": ["Hmph."],
-        },
-    },
-]
-
-INTERACTABLES = [
-    {
-        "name": "Lens",
-        "world_x": 600,
-        "y": 330,
-        "w": 30,
-        "h": 30,
-        "lines": {
-            1: ["The salt crust is thick.", "You clean it carefully."],
-            "default": ["The lens is clean."],
-        },
-    },
-    {
-        "name": "Logbook",
-        "world_x": 200,
-        "y": 350,
-        "w": 24,
-        "h": 30,
-        "lines": {
-            1: ["You write the day's observations.", "Wind from the north."],
-            "default": ["Nothing new to log."],
-        },
-    },
-]
-
-DAY_TASKS = {
-    1: {"interactable": "Lens", "minigame": "minigame_clean"},
-}
-
-DAY_FINISH_SCRIPTS = {
-    1: ["The generator is running.", "Good enough for now."],
-    2: ["Pressure logged.", "The numbers are getting worse."],
-    3: ["Cables replaced.", "The light should hold another night."],
-    4: ["Bulb is clean.", "The beam is as strong as it can be."],
-    5: ["Sensors placed.", "The scientist seems to know something she isn't saying."],
-    6: ["Shutters locked.", "The red dust gets in everywhere."],
-    7: ["Doors boarded.", "Won't stop much, but it's something."],
-    8: ["Engine cooled down.", "It won't last much longer."],
-    9: ["Done.", "Hands are shaking."],
-    10: [],
-}
-
-# tasks to complete during the night, by day number
-# interactable: name of the interactable that triggers the minigame, or None
-# minigame: scene name to launch, or None if it's just dialogue
-NIGHT_TASKS = {
-    1: {"interactable": "Lens", "minigame": "minigame_clean"},
-    2: {"interactable": None,   "minigame": None},
-    3: {"interactable": None,   "minigame": None},
-    4: {"interactable": None,   "minigame": None},
-    5: {"interactable": None,   "minigame": None},
-    6: {"interactable": None,   "minigame": None},
-    7: {"interactable": None,   "minigame": None},
-    8: {"interactable": None,   "minigame": None},
-    9: {"interactable": None,   "minigame": None},
-    10: {"interactable": None,  "minigame": None},
 }

@@ -37,7 +37,7 @@ class Interactable:
                 self.on_use()
                 return True
             lines = self.lines_by_day.get(day, self.lines_by_day.get("default", ["..."]))
-            dialogue.show(lines, style="thought", reveal_speed=40)
+            dialogue.show(lines, style="thought", reveal_speed=40, default_speaker="player")
             self.used_today = True
             return True
         return False

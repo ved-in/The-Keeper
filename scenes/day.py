@@ -44,10 +44,10 @@ def init():
             anim_path=o.get("anim_path"), anim_scale=o.get("anim_scale", 1.0))
         if task_minigame and task_name == o["name"]:
             def _launch(mg=task_minigame):
-                global _phase
-                import core.game as game
-                _phase = "task"
-                game.switch(mg)
+                import core.minigame_overlay as minigame_overlay
+                import minigames.clean_lens as clean_lens
+                clean_lens.set_task_complete_callback(notify_task_done)
+                minigame_overlay.open(mg)
             obj.on_use = _launch
         _interactables.append(obj)
 
@@ -70,7 +70,7 @@ def notify_task_done():
     _phase = "outro"
     day_finish = constants.DAY_FINISH_SCRIPTS.get(day_cycle.day, [])
     if day_finish:
-        dialogue.show(day_finish, style="thought")
+        dialogue.show(day_finish, style="thought", default_speaker="player")
 
 
 def _active_visitors():
@@ -106,5 +106,5 @@ def draw(screen):
 
 
 def draw_ui(screen):
-    dialogue.draw(screen, view.rect(_player["x"], _player["y"], _player["w"], _player["h"]))
+    dialogue.draw(screen, player_rect=view.rect(_player["x"], _player["y"], _player["w"], _player["h"]))
     hud.draw(screen)

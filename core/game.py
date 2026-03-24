@@ -1,11 +1,11 @@
 import core.day_cycle as day_cycle
-import scenes.clean_minigame as clean_minigame
 import scenes.lighthouse as lighthouse
 import scenes.day as day
 import scenes.nightfall as nightfall
 import scenes.opening as opening
 import core.animations as animations
 import core.tasks as tasks
+import core.minigame_overlay as minigame_overlay
 import constants
 
 import pygame
@@ -15,11 +15,10 @@ SCENES = {
     "opening": opening,
     "lighthouse": day,
     "nightfall": nightfall,
-    "minigame_clean": clean_minigame,
 }
 
 # scenes in this set get fully re-initialised every time we switch to them
-RESET_ON_ENTER = {"opening", "minigame_clean"}
+RESET_ON_ENTER = {"opening", "nightfall", "lighthouse"}
 
 scene = "opening"
 
@@ -36,6 +35,21 @@ def init():
     day.init()
     # load all sprite sheets before the game loop starts
     animations.load_all()
+    
+    import minigames.clean_lens as clean_lens
+    import minigames.fix_wires as fix_wires
+    import minigames.flip_breakers as flip_breakers
+    import minigames.pressure_valves as pressure_valves
+    import minigames.manual_crank as manual_crank
+    import minigames.log_pressure as log_pressure
+    
+    minigame_overlay.register("minigame_clean", clean_lens)
+    minigame_overlay.register("minigame_wires", fix_wires)
+    minigame_overlay.register("minigame_breakers", flip_breakers)
+    minigame_overlay.register("minigame_valves", pressure_valves)
+    minigame_overlay.register("minigame_crank", manual_crank)
+    minigame_overlay.register("minigame_pressure", log_pressure)
+    minigame_overlay.reset_all()
     # switch directly for no fade
     global scene
     scene = "opening"
@@ -59,6 +73,8 @@ def _update_fade(dt):
                 scene = _pending_scene
                 _pending_scene = None
                 if scene in RESET_ON_ENTER:
+                    if scene in ("nightfall", "lighthouse"):
+                        minigame_overlay.reset_all()
                     SCENES[scene].init()
     elif _fading_out:
         _fade_alpha = max(0, _fade_alpha - int(FADE_SPEED * dt))
@@ -73,6 +89,9 @@ def _current_scene():
 def handle_event(event):
     # block all input during transitions so keypresses don't leak into the next scene
     if _fading_in or _fading_out:
+        return
+    # overlay wont let inputs pass if minigame active
+    if minigame_overlay.handle_event(event):
         return
     _current_scene().handle_event(event)
 
@@ -89,16 +108,21 @@ def update(dt):
             switch("lighthouse")
         return
 
-    day_cycle.update(dt)
+    minigame_overlay.update(dt)
+    if minigame_overlay.is_blocking():
+        return
+        
+    # only tick the day clock when in day BUT not fading in or out
+    if scene == "lighthouse" and not _fading_in and not _fading_out:
+        day_cycle.update(dt)
+        # this should have fixed the bug of night starting without before fading_in is complete
+        # but this didnt fix it...
+        if day_cycle.is_night():
+            switch("nightfall")
 
     # advance all animation frames once per tick
     animations.update(dt)
     
-    # when the day timer hits night threshold, switch to the night scene
-    if day_cycle.is_night() and scene == "lighthouse":
-        nightfall.init()
-        switch("nightfall")
-
     _current_scene().update(dt)
 
     # when the player finishes reading the night dialogue, start the next day
@@ -124,6 +148,9 @@ def draw(screen):
     # draws ui elements IFFF scene != "opening"
     if scene != "opening":
         _current_scene().draw_ui(screen)
+    
+    # minigame panel draws on top of everything, including UI
+    minigame_overlay.draw(screen)
     
     # fade logic
     if _fade_alpha > 0:

@@ -21,7 +21,7 @@ class Visitor(Interactable):
     def handle_click(self, pos, world_offset, day):
         if self.screen_rect(world_offset).collidepoint(pos):
             lines = self.lines_by_day.get(day, self.lines_by_day.get("default", ["..."]))
-            dialogue.show(lines, style="thought", reveal_speed=40)
+            dialogue.show(lines, style="thought", reveal_speed=40, npc_rect=self.screen_rect(world_offset))
             self.talked_today = True
             return True
         return False

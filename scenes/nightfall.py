@@ -10,6 +10,10 @@ import core.view as view
 import core.tasks as tasks
 from core.interactables import Interactable
 
+
+import core.minigame_overlay as minigame_overlay
+import minigames.clean_lens as clean_lens
+
 # set to True when the player finishes reading, signals game.py to advance the day
 done = False
 _player = player.make_player()
@@ -52,21 +56,19 @@ def init():
             anim_path=o.get("anim_path"), anim_scale=o.get("anim_scale", 1.0))
         if task_minigame and task_name == o["name"]:
             def _launch(mg=task_minigame):
-                global _phase
-                import core.game as game
-                _phase = "task"
-                game.switch(mg)
+                clean_lens.set_task_complete_callback(notify_task_done)
+                minigame_overlay.open(mg)
             obj.on_use = _launch
         _interactables.append(obj)
     
     # load the correct night script as soon as the scene starts
-    dialogue.show(constants.SCRIPTS.get(day_cycle.day, constants.FALLBACK_NIGHT_SCRIPT), style="thought")
+    dialogue.show(constants.SCRIPTS.get(day_cycle.day, constants.FALLBACK_NIGHT_SCRIPT), style="thought", default_speaker="player")
 
 
 def _start_outro():
     global _phase
     _phase = "outro"
-    dialogue.show(constants.FINISH_SCRIPTS.get(day_cycle.day, ["The night passes."]), style="thought")
+    dialogue.show(constants.FINISH_SCRIPTS.get(day_cycle.day, ["The night passes."]), style="thought", default_speaker="player")
 
 
 def notify_task_done():
@@ -140,4 +142,4 @@ def draw(screen):
 
 def draw_ui(screen):
     hud.draw_night(screen)
-    dialogue.draw(screen, view.rect(_player["x"], _player["y"], _player["w"], _player["h"]))
+    dialogue.draw(screen, player_rect=view.rect(_player["x"], _player["y"], _player["w"], _player["h"]))
