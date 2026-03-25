@@ -1,4 +1,5 @@
 # The Keeper
+
 **PyWeek 41 - Theme: Nightfall**
 
 ## Overview
@@ -26,7 +27,7 @@ You are the keeper of a lighthouse in a world where the sun never fully sets. Th
 - [x] Added animations for entities `core/animations.py`
 - [x] Fixed bug where night started before the timer gets full
 - [x] Red shade increasing day by day
-- [x] Fade in and fade out on scene switch 
+- [x] Fade in and fade out on scene switch
 - [x] Added interactible and visitor classes in `core/interactable.py`, `core/visitors.py`
 - [x] dialogues of interactable and visitors show up near the player itself but should be near the clicked object
 - [x] current arrangement of frame for visitors and interactibles is VERY hard coded type shit. Needs fixing
@@ -47,7 +48,7 @@ You are the keeper of a lighthouse in a world where the sun never fully sets. Th
 
 ## Structure
 
-```
+```bash
 ├── assets
 │   ├── fonts
 │   │   ├── IMFellEnglish-Italic.ttf
@@ -82,3 +83,11 @@ You are the keeper of a lighthouse in a world where the sun never fully sets. Th
 - `ui/dialogue.py` is used by both the opening scene and gameplay scenes
 - The current flow is: `opening -> lighthouse/day -> nightfall -> next day`
 - rudy is doing the voice acting and soundwork because no one else can 🥀
+
+## Contributors
+
+- ved-in - primary developer (core architecture, game mechanics, implementation)
+- X3r0Day - secondary developer
+- RudyDaBot - voice acting and sound design
+- xodo2fast4u - original concept and storyline contributions
+- omnimistic - storyline direction
