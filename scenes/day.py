@@ -1,15 +1,15 @@
 import pygame
-import core.player as player
+import entities.player as player
 import ui.dialogue as dialogue
 import ui.hud as hud
 import scenes.lighthouse as lighthouse
 import constants
 import core.view as view
 import core.day_cycle as day_cycle
-import core.tasks as tasks
+import systems.tasks as tasks
 
-from core.interactables import Interactable
-from core.visitors import Visitor
+from entities.interactables import Interactable
+from entities.visitors import Visitor
 
 # "roaming" -> player explores, can click the task interactable to start minigame
 # "task"    -> minigame running
@@ -31,9 +31,11 @@ def init():
     _font = view.font(11)
     tasks.reset_for_day()
 
-    day_task = constants.DAY_TASKS.get(day_cycle.day, {})
-    task_name = day_task.get("interactable")
-    task_minigame = day_task.get("minigame")
+    day_task_list = tasks.get_day_tasks(day_cycle.day)
+    # build a lookup: interactable name -> (minigame_key, task_index)
+    task_map = {t["interactable"]: (t["minigame"], i)
+                for i, t in enumerate(day_task_list)
+                if t.get("interactable") and t.get("minigame")}
 
     _interactables = []
     for o in constants.INTERACTABLES:
@@ -42,11 +44,13 @@ def init():
             o["world_x"], o["y"],
             o["w"], o["h"], o["lines"],
             anim_path=o.get("anim_path"), anim_scale=o.get("anim_scale", 1.0))
-        if task_minigame and task_name == o["name"]:
-            def _launch(mg=task_minigame):
-                import core.minigame_overlay as minigame_overlay
-                import minigames.clean_lens as clean_lens
-                clean_lens.set_task_complete_callback(notify_task_done)
+        if o["name"] in task_map:
+            mg, task_idx = task_map[o["name"]]
+            def _launch(mg=mg, idx=task_idx):
+                import systems.minigame_overlay as minigame_overlay
+                module = minigame_overlay._registry.get(mg)
+                if module and hasattr(module, "set_task_complete_callback"):
+                    module.set_task_complete_callback(lambda i=idx: notify_task_done(i))
                 minigame_overlay.open(mg)
             obj.on_use = _launch
         _interactables.append(obj)
@@ -63,14 +67,15 @@ def init():
     ]
 
 
-def notify_task_done():
+def notify_task_done(idx: int = 0):
     """Called by a day minigame when it completes."""
     global _phase
-    tasks.complete_day_task()
-    _phase = "outro"
-    day_finish = constants.DAY_FINISH_SCRIPTS.get(day_cycle.day, [])
-    if day_finish:
-        dialogue.show(day_finish, style="thought", default_speaker="player")
+    tasks.complete_day_task(idx)
+    if tasks.all_day_tasks_done():
+        _phase = "outro"
+        day_finish = constants.DAY_FINISH_SCRIPTS.get(day_cycle.day, [])
+        if day_finish:
+            dialogue.show(day_finish, style="thought", default_speaker="player")
 
 
 def _active_visitors():

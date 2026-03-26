@@ -7,41 +7,23 @@ You are the keeper of a lighthouse in a world where the sun never fully sets. Th
 
 ## Done
 
-- [x] Main loop (`main.py`)
-- [x] Scene switching (`core/game.py`)
-- [x] Day/night cycle (`core/day_cycle.py`)
-- [x] Player rectangle with movement and clamping (`core/player.py`)
-- [x] Lighthouse/day scene (`scenes/day.py`)
-- [x] Shared lighthouse drawing (`scenes/lighthouse.py`)
-- [x] Night scene (`scenes/nightfall.py`)
-- [x] Opening cinematic scene (`scenes/opening.py`)
-- [x] Shared dialogue system with styled log/thought layouts (`ui/dialogue.py`)
-- [x] HUD with day counter (`ui/hud.py`)
-- [x] Pulsing beacon glow in night scene
-- [x] Opening typewriter text with typing sound
-- [x] Custom font support from `assets/fonts`
-- [x] Fixed display modes with `F11`: windowed, borderless, fullscreen
-- [x] Viewport scaling helper for consistent framing across display modes (`core/view.py`)
-- [x] Ground now has texture
-- [x] Added animations for entities `core/animations.py`
-- [x] Fixed bug where night started before the timer gets full
-- [x] Red shade increasing day by day
-- [x] Fade in and fade out on scene switch 
-- [x] Added interactible and visitor classes in `core/interactable.py`, `core/visitors.py`
-- [x] dialogues of interactable and visitors show up near the player itself but should be near the clicked object
-- [x] current arrangement of frame for visitors and interactibles is VERY hard coded type shit. Needs fixing
+- Added emergency system
+- Added fix_wires, log_pressure minigames
+- Tasks panel for day and night
+- opening at the beach - need to wire up assets
 
 ## To Add/Fix
 
-- [ ] Interactable objects in day scene (logbook, maintenance table, etc.)
-- [ ] NPC system with proximity-triggered conversations
+- [ ] Can interact with npcs and interactables anywhere in map. Needs fix
 - [ ] Beacon minigame for rhythm/timing repair
 - [ ] Night scripts for day 2 and day 3
-- [ ] Daytime maintenance tasks with feedback/state changes
+- [ ] Need removal of old night_task code. Currently only emergencies are used in night
+- [ ] Need to wire up assets of fisherman, beach, sea, ships
+- [ ] Need some sort of engine asset
 
 ## Controls
 
-- ~~`A / D` or `Left / Right`: move~~ click to move
+- `A / D` or `Left / Right` or `click to move`
 - `Space / Enter`: advance dialogue
 - `F11`: cycle display mode
 

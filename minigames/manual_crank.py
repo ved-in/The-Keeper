@@ -1,1 +1,0 @@
-# Rapid-click the spinning crank handle to sustain power for 8 seconds, power drains passively

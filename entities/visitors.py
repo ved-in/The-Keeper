@@ -1,7 +1,7 @@
 import pygame
 import ui.dialogue as dialogue
-from core.interactables import Interactable
-import core.animations as animations
+from entities.interactables import Interactable
+import entities.animations as animations
 
 class Visitor(Interactable):
     def __init__(self, name, world_x, y, y_offset, lines_by_day, anim_folder=None, anim_scale=1.0):

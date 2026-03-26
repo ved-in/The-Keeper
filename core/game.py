@@ -3,9 +3,10 @@ import scenes.lighthouse as lighthouse
 import scenes.day as day
 import scenes.nightfall as nightfall
 import scenes.opening as opening
-import core.animations as animations
-import core.tasks as tasks
-import core.minigame_overlay as minigame_overlay
+import scenes.beach_intro as beach_intro
+import entities.animations as animations
+import systems.tasks as tasks
+import systems.minigame_overlay as minigame_overlay
 import constants
 
 import pygame
@@ -13,12 +14,13 @@ import pygame
 # maps scene name strings to their modules so we can switch between them easily
 SCENES = {
     "opening": opening,
+    "beach_intro": beach_intro,
     "lighthouse": day,
     "nightfall": nightfall,
 }
 
 # scenes in this set get fully re-initialised every time we switch to them
-RESET_ON_ENTER = {"opening", "nightfall", "lighthouse"}
+RESET_ON_ENTER = {"opening", "beach_intro", "nightfall", "lighthouse"}
 
 scene = "opening"
 
@@ -38,17 +40,17 @@ def init():
     
     import minigames.clean_lens as clean_lens
     import minigames.fix_wires as fix_wires
-    import minigames.flip_breakers as flip_breakers
-    import minigames.pressure_valves as pressure_valves
-    import minigames.manual_crank as manual_crank
+    #import minigames.flip_breakers as flip_breakers
+    #import minigames.pressure_valves as pressure_valves
+    #import minigames.manual_crank as manual_crank
     import minigames.log_pressure as log_pressure
     
-    minigame_overlay.register("minigame_clean", clean_lens)
-    minigame_overlay.register("minigame_wires", fix_wires)
-    minigame_overlay.register("minigame_breakers", flip_breakers)
-    minigame_overlay.register("minigame_valves", pressure_valves)
-    minigame_overlay.register("minigame_crank", manual_crank)
-    minigame_overlay.register("minigame_pressure", log_pressure)
+    minigame_overlay.register("minigame_clean", clean_lens.instance)
+    minigame_overlay.register("minigame_wires", fix_wires.instance)
+    #minigame_overlay.register("minigame_breakers", flip_breakers.instance)
+    #minigame_overlay.register("minigame_valves", pressure_valves.instance)
+    #minigame_overlay.register("minigame_crank", manual_crank.instance)
+    minigame_overlay.register("minigame_pressure", log_pressure.instance)
     minigame_overlay.reset_all()
     # switch directly for no fade
     global scene
@@ -105,6 +107,12 @@ def update(dt):
     if scene == "opening":
         opening.update(dt)
         if opening.done:
+            switch("beach_intro")
+        return
+    if scene == "beach_intro":
+        animations.update(dt)
+        beach_intro.update(dt)
+        if beach_intro.done:
             switch("lighthouse")
         return
 
