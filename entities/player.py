@@ -3,7 +3,7 @@ import os
 import math
 import constants
 import core.view as view
-import core.animations as animations
+import entities.animations as animations
 
 # how far the world has scrolled horizontally
 # negative means scrolled right, positive means scrolled left

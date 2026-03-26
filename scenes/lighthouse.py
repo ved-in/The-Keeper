@@ -1,5 +1,5 @@
 import pygame
-import core.player as player
+import entities.player as player
 import constants
 import core.view as view
 

@@ -1,1 +1,0 @@
-# Click 5 valves in ascending pressure order, wrong order resets progress

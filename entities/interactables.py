@@ -1,7 +1,7 @@
 import pygame
 import core.view as view
 import ui.dialogue as dialogue
-import core.animations as animations
+import entities.animations as animations
 
 from typing import Optional, Callable
 
