@@ -1,4 +1,5 @@
 # The Keeper
+
 **PyWeek 41 - Theme: Nightfall**
 
 ## Overview
@@ -29,7 +30,7 @@ You are the keeper of a lighthouse in a world where the sun never fully sets. Th
 
 ## Structure
 
-```
+```bash
 ├── assets
 │   ├── fonts
 │   │   ├── IMFellEnglish-Italic.ttf
@@ -63,3 +64,12 @@ You are the keeper of a lighthouse in a world where the sun never fully sets. Th
 - `constants.py` holds scene/dialogue config and asset paths
 - `ui/dialogue.py` is used by both the opening scene and gameplay scenes
 - The current flow is: `opening -> lighthouse/day -> nightfall -> next day`
+- rudy is doing the voice acting and soundwork because no one else can 🥀
+
+## Contributors
+
+- ved-in - primary developer (core architecture, game mechanics, implementation)
+- X3r0Day - secondary developer
+- RudyDaBot - voice acting and sound design
+- xodo2fast4u - original concept and storyline contributions
+- omnimistic - storyline direction
