@@ -38,15 +38,16 @@ def init():
     
     _font = view.font(11, constants.FONT_PATH)
     
-    # fisherman as a Visitor — world_x == screen_x because offset is always 0
+    # fisherman as a Visitor with animation support
+    # animations are pre-registered in game.init() -> animations.load_all()
     _fisherman = Visitor(
-        name = "Fisherman",
-        world_x = 680,
-        y = _GROUND_Y,
-        y_offset = 0,
-        lines_by_day = {1: constants.VISITORS[1]["lines"][1]},
-        anim_folder = None,
-        anim_scale = 3.0,
+        name="Fisherman",
+        world_x=680,
+        y=_GROUND_Y,
+        y_offset=0,
+        lines_by_day={1: constants.VISITORS[1]["lines"][1]},
+        anim_key="fisherman",
+        anim_scale=4.5,
     )
 
 
@@ -80,7 +81,7 @@ def update(dt):
 
 def draw(screen):
     # background is drawn by game.py via sky_color() — just draw scene elements
-    _fisherman.draw(screen, 0, _font)
+    _fisherman.draw(screen, 0, _font, flip=True)
     player.draw(screen, _player)
     
     dialogue.draw(

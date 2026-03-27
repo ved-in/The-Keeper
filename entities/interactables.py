@@ -31,7 +31,14 @@ class Interactable:
         cx = self.world_x + world_offset
         return view.rect(cx - self.w / 2, self.y - self.h / 2, self.w, self.h)
     
+    def is_on_screen(self, world_offset):
+        rect = self.screen_rect(world_offset)
+        screen_rect = view.content_rect()
+        return rect.colliderect(screen_rect)
+    
     def handle_click(self, pos, world_offset, day):
+        if not self.is_on_screen(world_offset):
+            return False
         if self.screen_rect(world_offset).collidepoint(pos):
             if hasattr(self, "on_use") and self.on_use:
                 self.on_use()
@@ -58,4 +65,3 @@ class Interactable:
         if self.hovered and font:
             label = font.render(self.name, True, (240, 235, 210))
             screen.blit(label, (rect.centerx - label.get_width() // 2, rect.top - label.get_height() - 6))
-            

@@ -40,10 +40,14 @@ def register(entity, state, path, scale=1.0):
 
 def load_all():
     # register all entities and their animation states here
+    # fisherman has separate folders for each animation state with individual frame files
+    register("fisherman", "idle", "assets/characters/fisherman/idle", scale=1.0)
+    register("fisherman", "walk", "assets/characters/fisherman/walk", scale=1.0)
+    register("fisherman", "hook", "assets/characters/fisherman/hook", scale=1.0)
+    register("fisherman", "fish", "assets/characters/fisherman/fish", scale=1.0)
+    
     register("mc", "idle", "assets/characters/mc/idle", scale=1.1)
     register("mc", "walk", "assets/characters/mc/walk", scale=1.1)
-    # add new characters below when ready, for example:
-    # register("npc_maren", "idle", "assets/characters/maren/idle", scale=1.0)
 
 
 def update(dt):
