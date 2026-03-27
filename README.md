@@ -11,6 +11,7 @@ You are the keeper of a lighthouse in a world where the sun never fully sets. Th
 - Added fix_wires, log_pressure minigames
 - Tasks panel for day and night
 - opening at the beach - need to wire up assets
+- added 3 more minigames. flip_breakers, manual_crank, pressure_valves
 
 ## To Add/Fix
 
@@ -19,7 +20,7 @@ You are the keeper of a lighthouse in a world where the sun never fully sets. Th
 - [ ] Night scripts for day 2 and day 3
 - [ ] Need removal of old night_task code. Currently only emergencies are used in night
 - [ ] Need to wire up assets of fisherman, beach, sea, ships
-- [ ] Need some sort of engine asset
+- [ ] Need assets for interactables
 
 ## Controls
 

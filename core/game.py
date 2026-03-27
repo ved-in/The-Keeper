@@ -40,16 +40,16 @@ def init():
     
     import minigames.clean_lens as clean_lens
     import minigames.fix_wires as fix_wires
-    #import minigames.flip_breakers as flip_breakers
-    #import minigames.pressure_valves as pressure_valves
-    #import minigames.manual_crank as manual_crank
+    import minigames.flip_breakers as flip_breakers
+    import minigames.pressure_valves as pressure_valves
+    import minigames.manual_crank as manual_crank
     import minigames.log_pressure as log_pressure
     
     minigame_overlay.register("minigame_clean", clean_lens.instance)
     minigame_overlay.register("minigame_wires", fix_wires.instance)
-    #minigame_overlay.register("minigame_breakers", flip_breakers.instance)
-    #minigame_overlay.register("minigame_valves", pressure_valves.instance)
-    #minigame_overlay.register("minigame_crank", manual_crank.instance)
+    minigame_overlay.register("minigame_breakers", flip_breakers.instance)
+    minigame_overlay.register("minigame_valves", pressure_valves.instance)
+    minigame_overlay.register("minigame_crank", manual_crank.instance)
     minigame_overlay.register("minigame_pressure", log_pressure.instance)
     minigame_overlay.reset_all()
     # switch directly for no fade
