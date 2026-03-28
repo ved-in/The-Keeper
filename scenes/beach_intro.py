@@ -1,5 +1,5 @@
 """
-Beach Intro scene — plays once before Day 1.
+Beach Intro scene: plays once before Day 1.
 
 The player can walk freely across the beach (screen-bounded, no world scroll).
 The fisherman stands on the dock as a Visitor. Click him to trigger day 1
@@ -26,6 +26,7 @@ _GROUND_Y = 360
 
 def init():
     global done, _player, _fisherman, _font
+    global bg_rect, bg_surface
     done = False
     
     # player starts at the left side of the beach
@@ -43,12 +44,15 @@ def init():
     _fisherman = Visitor(
         name="Fisherman",
         world_x=680,
-        y=_GROUND_Y,
-        y_offset=0,
+        y=_GROUND_Y-10,
+        y_offset=33,
         lines_by_day={1: constants.VISITORS[1]["lines"][1]},
-        anim_key="fisherman",
-        anim_scale=4.5,
+        anim_folder=constants.VISITORS[1]["anim_folder"],  # ← from constants
+        anim_scale=constants.VISITORS[1]["anim_scale"],    # ← from constants (was hardcoded 4.5)
     )
+
+    bg_surface = pygame.image.load('assets/map/beach_intro.png').convert_alpha()
+    bg_rect = bg_surface.get_rect()
 
 
 def handle_event(event):
@@ -80,6 +84,8 @@ def update(dt):
 
 
 def draw(screen):
+    global bg_surface, bg_rect
+    screen.blit(bg_surface, bg_rect)
     # background is drawn by game.py via sky_color() — just draw scene elements
     _fisherman.draw(screen, 0, _font, flip=True)
     player.draw(screen, _player)
