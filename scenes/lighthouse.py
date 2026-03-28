@@ -20,6 +20,8 @@ BEACON = (480, 160)
 BEACON_COLOR = (255, 230, 120)
 
 _sprite = None
+_raw_sprite = None
+_tile_cache = {}
 
 _CLOUD_Y_RANGE = (30, 250)
 _CLOUD_ALPHA_DAY = 55
@@ -326,23 +328,33 @@ def draw_clouds(screen: pygame.Surface, night: bool = False):
 
 
 def init():
-    global tmx_bg, _sprite
+    global tmx_bg, _raw_sprite
     tmx_bg = pytmx.load_pygame("assets/map/bg/untitled.tmx")
 
     try:
-        raw_image = pygame.image.load("assets/sprites/lighthouse.webp").convert_alpha()
-        _sprite = pygame.transform.scale(
-            raw_image, (view.scale(SPRITE_W), view.scale(SPRITE_H))
-        )
+        _raw_sprite = pygame.image.load("assets/sprites/lighthouse.webp").convert_alpha()
     except FileNotFoundError:
-        _sprite = None
+        _raw_sprite = None
 
+    rebuild_scaled()
     _init_clouds()
     _init_ocean()
 
     # Rain is initialised in update_clouds once we know the screen size;
     # seed it here with a dummy size, it will be re-seeded on first update.
     _init_rain(1, 1280, 720)
+
+
+def rebuild_scaled():
+    global _sprite, _tile_cache
+    _tile_cache = {}
+    if _raw_sprite is None:
+        _sprite = None
+        return
+    _sprite = pygame.transform.scale(
+        _raw_sprite,
+        (view.scale(SPRITE_W), view.scale(SPRITE_H))
+    )
 
 
 def draw(screen, night: bool = False):
@@ -404,6 +416,7 @@ def _rect(x_pos, y_pos, width, height):
 
 def draw_tmx(screen, tmx):
     # Render all visible layers from the Tiled map
+    tile_size = (view.scale(tmx.tilewidth * 2), view.scale(tmx.tileheight * 2))
     for layer in tmx.visible_layers:
         if hasattr(layer, "data"):
             for x, y, gid in layer:
@@ -413,7 +426,10 @@ def draw_tmx(screen, tmx):
                 if tile is None: continue
                 
                 # Scale tile and calculate position with world offset
-                scaled_tile = pygame.transform.scale(tile, (int(tmx.tilewidth * 2), int(tmx.tileheight * 2)))
+                scaled_tile = _tile_cache.get((gid, tile_size))
+                if scaled_tile is None:
+                    scaled_tile = pygame.transform.scale(tile, tile_size)
+                    _tile_cache[(gid, tile_size)] = scaled_tile
                 render_pos = view.point(x * tmx.tilewidth * 1.2 - 300 + player._world_offset, y * tmx.tileheight * 1.2 - 120)
                 
                 screen.blit(scaled_tile, render_pos)

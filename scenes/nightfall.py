@@ -72,10 +72,13 @@ def init():
         {"default": ["The lighthouse entrance."]})
     _interactables.append(door_obj)
     
-    dialogue.show(
-        constants.SCRIPTS.get(day_cycle.day, constants.FALLBACK_NIGHT_SCRIPT),
-        style="thought", default_speaker="player"
-    )
+    intro_lines = list(constants.NIGHT_TUTORIAL_SCRIPTS.get(day_cycle.day, []))
+    night_script = constants.SCRIPTS.get(day_cycle.day)
+    if night_script:
+        intro_lines.extend(night_script)
+    if not intro_lines:
+        intro_lines = list(constants.FALLBACK_NIGHT_SCRIPT)
+    dialogue.show(intro_lines, style="thought", default_speaker="player")
 
     sound.start_night(day_cycle.day)
 
@@ -210,8 +213,15 @@ def draw(screen):
         inner_glow_alpha=ia, inner_glow_alpha_pulse=int(26 * _beacon_alpha),
         core_radius=int(40 * max(0.05, _beacon_alpha)),
     )
+    active_name = emergency.current()["interactable"] if emergency.current() else None
     for obj in _interactables:
-        obj.draw(screen, player._world_offset, _font)
+        obj.draw(
+            screen,
+            player._world_offset,
+            _font,
+            highlight=(obj.name == active_name),
+            highlight_color=(210, 82, 82),
+        )
     player.draw(screen, _player)
     
     if _dim_alpha > 0:
@@ -223,3 +233,15 @@ def draw(screen):
 def draw_ui(screen):
     hud.draw_night(screen, _night_timer, NIGHT_DURATION, emergency.current())
     dialogue.draw(screen, player_rect=view.rect(_player["x"], _player["y"], _player["w"], _player["h"]))
+    if day_cycle.day == 1 and not dialogue.active():
+        if emergency.current():
+            lines = [
+                "An emergency is active.",
+                "Click the red-highlighted object to start the repair.",
+            ]
+        else:
+            lines = [
+                "Survive until the timer ends.",
+                "If something fails, the red-highlighted object is the urgent target.",
+            ]
+        hud.draw_help_card(screen, "Night Watch", lines, accent=(210, 82, 82))

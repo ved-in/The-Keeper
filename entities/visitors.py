@@ -1,4 +1,5 @@
 import pygame
+import core.view as view
 import ui.dialogue as dialogue
 from entities.interactables import Interactable, _draw_bounce_arrow
 import entities.animations as animations
@@ -44,14 +45,18 @@ class Visitor(Interactable):
             return True
         return False
     
-    def draw(self, screen, world_offset, font=None, anim_state="idle", flip=False):
+    def draw(self, screen, world_offset, font=None, anim_state="idle", flip=False, highlight=False, highlight_color=(172, 152, 108)):
         rect = self.screen_rect(world_offset)
+        if highlight and self.is_on_screen(world_offset):
+            from entities.interactables import _draw_marker
+            _draw_marker(screen, rect, highlight_color)
         
         if self.anim_key:
             frame = animations.get_frame(self.anim_key, anim_state, flip=flip)
             if frame:
                 # align sprite bottom to the rect bottom (standing on ground)
-                screen.blit(frame, (rect.centerx - frame.get_width() // 2, rect.bottom - frame.get_height() + self.y_offset))
+                y_offset = int(round(self.y_offset * (view.current_scale() / view.reference_scale())))
+                screen.blit(frame, (rect.centerx - frame.get_width() // 2, rect.bottom - frame.get_height() + y_offset))
         else:
             color = (120, 110, 100) if self.talked_today else self.color
             pygame.draw.rect(screen, color, rect, border_radius=3)
@@ -63,6 +68,6 @@ class Visitor(Interactable):
             for ox, oy in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
                 screen.blit(outline, (lx + ox, ly + oy))
             screen.blit(label, (lx, ly))
-        # bouncing arrow when visitor has lines today and hasn't been talked to
-        if self.pending and not self.talked_today:
+        if self.pending and not highlight and not self.talked_today and self.is_on_screen(world_offset):
+            from entities.interactables import _draw_bounce_arrow
             _draw_bounce_arrow(screen, rect)

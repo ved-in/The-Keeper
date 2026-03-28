@@ -6,6 +6,7 @@ Pick up the rag, then drag it across the lens to wipe away all the dust.
 
 import pygame
 import core.view as view
+import entities.animations as animations
 from systems.minigame import Minigame
 
 # was too long and boring. reduced number of cols and rows
@@ -17,7 +18,7 @@ class CleanLens(Minigame):
     TITLE = "Clean the Lens"
     def __init__(self) -> None:
         super().__init__()
-        self._has_rag: bool = False
+        self._has_rug: bool = False
         self._dragging: bool = False
         self._dust: list[list[bool]] = []
         self._content_rect: pygame.Rect | None = None
@@ -25,7 +26,7 @@ class CleanLens(Minigame):
     
     def reset(self) -> None:
         super().reset()
-        self._has_rag = False
+        self._has_rug = False
         self._dragging = False
         self._dust = [[True] * DUST_COLS for _ in range(DUST_ROWS)]
         self._rag_img = None
@@ -33,10 +34,10 @@ class CleanLens(Minigame):
     def handle_event(self, event: pygame.event.Event) -> None:
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             pos = event.pos
-            if not self._has_rag:
-                rr = self._rag_rect()
+            if not self._has_rug:
+                rr = self._rug_rect()
                 if rr and rr.collidepoint(pos):
-                    self._has_rag = True
+                    self._has_rug = True
             else:
                 lr = self._lens_rect()
                 if lr and lr.collidepoint(pos):
@@ -44,7 +45,7 @@ class CleanLens(Minigame):
                     self._wipe_at(pos)
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             self._dragging = False
-        if event.type == pygame.MOUSEMOTION and self._dragging and self._has_rag:
+        if event.type == pygame.MOUSEMOTION and self._dragging and self._has_rug:
             self._wipe_at(event.pos)
     
     def update(self, dt: float) -> None:
@@ -72,10 +73,10 @@ class CleanLens(Minigame):
         lbl = font.render("Lens", True, (50, 50, 70))
         screen.blit(lbl, (lr.centerx - lbl.get_width() // 2, lr.top - lbl.get_height() - view.scale(4)))
 
-        if not self._has_rag:
-            hint_text, hint_col = "Pick up the rag first.", (150, 146, 164)
+        if not self._has_rug:
+            hint_text, hint_col = "Pick up the rug first.", (150, 146, 164)
         elif not self._all_clean():
-            hint_text, hint_col = "Drag the rag across the lens to clean it.", (150, 146, 164)
+            hint_text, hint_col = "Drag the rug across the lens to clean it.", (150, 146, 164)
         else:
             hint_text, hint_col = "Lens is clean!", (172, 200, 150)
         self.draw_hint(screen, content_rect, hint_text, hint_col)
@@ -97,6 +98,7 @@ class CleanLens(Minigame):
             lbl = font.render("Rag", True, (240, 235, 210))
             screen.blit(lbl, (rr.centerx - lbl.get_width() // 2, rr.top - lbl.get_height() - view.scale(4)))
         else:
+            # Draw rug sprite following the mouse while dragging
             mx, my = pygame.mouse.get_pos()
             rw, rh = view.scale(28), view.scale(18)
             if self._rag_img:
@@ -108,7 +110,7 @@ class CleanLens(Minigame):
                 screen.blit(rag_surf, (mx - rw // 2, my - rh // 2))
     
 
-    def _rag_rect(self) -> pygame.Rect | None:
+    def _rug_rect(self) -> pygame.Rect | None:
         cr = self._content_rect
         if cr is None:
             return None

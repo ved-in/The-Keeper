@@ -1,9 +1,12 @@
 import os
 import pygame
+import core.view as view
 
 # stores all loaded animation frames grouped by entity name and state name
 # structure: { entity_name: { state_name: [pygame.Surface, ...] } }
 _animations = {}
+_raw_animations = {}
+_asset_scales = {}
 
 # stores the current frame index and timer for each entity
 # structure: { entity_name: { "frame": int, "timer": float } }
@@ -22,9 +25,6 @@ def load_folder(path, scale=1.0):
         if not os.path.exists(filepath):
             break
         frame = pygame.image.load(filepath).convert_alpha()
-        if scale != 1.0:
-            w, h = frame.get_size()
-            frame = pygame.transform.scale(frame, (int(w * scale), int(h * scale)))
         frames.append(frame)
         i += 1
     return frames
@@ -34,8 +34,12 @@ def register(entity, state, path, scale=1.0):
     # sets up storage for a new entity if this is the first state being registered
     if entity not in _animations:
         _animations[entity] = {}
+        _raw_animations[entity] = {}
+        _asset_scales[entity] = {}
         _state[entity] = {"frame": 0, "timer": 0.0}
-    _animations[entity][state] = load_folder(path, scale)
+    _raw_animations[entity][state] = load_folder(path)
+    _asset_scales[entity][state] = scale
+    _animations[entity][state] = _scale_frames(_raw_animations[entity][state], scale)
 
 
 def load_all():
@@ -48,6 +52,14 @@ def load_all():
     
     register("mc", "idle", "assets/characters/mc/idle", scale=1.1)
     register("mc", "walk", "assets/characters/mc/walk", scale=1.1)
+
+
+def rebuild_scaled():
+    for entity, states in _raw_animations.items():
+        _animations.setdefault(entity, {})
+        for state, frames in states.items():
+            asset_scale = _asset_scales.get(entity, {}).get(state, 1.0)
+            _animations[entity][state] = _scale_frames(frames, asset_scale)
 
 
 def update(dt):
@@ -76,3 +88,17 @@ def reset(entity):
     if entity in _state:
         _state[entity]["frame"] = 0
         _state[entity]["timer"] = 0.0
+
+
+def _scale_frames(frames, asset_scale):
+    total_scale = max(0.01, asset_scale * (view.current_scale() / view.reference_scale()))
+    scaled = []
+    for frame in frames:
+        w, h = frame.get_size()
+        scaled.append(
+            pygame.transform.scale(
+                frame,
+                (max(1, int(round(w * total_scale))), max(1, int(round(h * total_scale)))),
+            )
+        )
+    return scaled

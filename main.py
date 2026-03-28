@@ -26,6 +26,7 @@ def set_mode(name):
 
     # tell the view module how big the window is so it can scale everything correctly
     view.set_size(screen.get_size())
+    game.handle_resize()
     return screen
 
 
@@ -56,6 +57,7 @@ def run_frame(clock, screen, mode_index):
         # if the user resizes the window manually, update the view scaling
         if event.type == pygame.WINDOWSIZECHANGED:
             view.set_size((event.x, event.y))
+            game.handle_resize()
         game.handle_event(event)
 
     game.update(dt)
