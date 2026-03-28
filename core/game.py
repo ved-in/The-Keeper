@@ -225,7 +225,15 @@ def apply_red_overlay(screen, day):
     alpha = constants.RED_OVERLAY_ALPHA.get(day, 0)
     if alpha == 0:
         return
-    overlay = pygame.Surface(screen.get_size())
-    overlay.fill((255, 0, 0))
-    overlay.set_alpha(alpha)
+    w, h = screen.get_size()
+    overlay = pygame.Surface((w, h), pygame.SRCALPHA)
+    cx, cy = w // 2, h // 2
+    max_r = int((cx ** 2 + cy ** 2) ** 0.5)
+    # draw concentric circles from edge inward, fading to transparent at center
+    steps = 48
+    for i in range(steps, 0, -1):
+        t = i / steps                          # 1.0 at edge, near 0 at center
+        ring_alpha = int(alpha * (t ** 1.6))   # power curve — sharp edge, soft center
+        r = int(max_r * t)
+        pygame.draw.circle(overlay, (180, 0, 0, ring_alpha), (cx, cy), r)
     screen.blit(overlay, (0, 0))

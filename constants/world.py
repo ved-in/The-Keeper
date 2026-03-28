@@ -33,7 +33,7 @@ INTERACTABLES = [
     },
     {
         "name": "Generator",
-        "world_x": -200,
+        "world_x": -50,
         "y": 370,
         "w": 36,
         "h": 34,
@@ -45,7 +45,7 @@ INTERACTABLES = [
     },
     {
         "name": "Breaker Box",
-        "world_x": -400,
+        "world_x": -10,
         "y": 350,
         "w": 28,
         "h": 36,
@@ -55,7 +55,7 @@ INTERACTABLES = [
     },
     {
         "name": "Engine",
-        "world_x": -300,
+        "world_x": -140,
         "y": 370,
         "w": 40,
         "h": 32,
