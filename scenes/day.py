@@ -102,6 +102,10 @@ def init():
         )
         _visitors.append(visitor)
 
+    start_lines = constants.DAY_START_SCRIPTS.get(day)
+    if start_lines:
+        dialogue.show(start_lines, style="thought", default_speaker="player")
+
 
 def _start_board_door(task_idx: int):
     global _board_door_active, _board_door_timer, _board_door_alpha
@@ -188,8 +192,14 @@ def update(dt):
 
 def draw(screen):
     lighthouse.draw(screen, night=False)
+    pending = _pending_task_targets()
     for obj in _interactables + _visitors:
-        obj.draw(screen, player._world_offset, _font)
+        obj.draw(
+            screen,
+            player._world_offset,
+            _font,
+            highlight=(obj.name in pending),
+        )
     player.draw(screen, _player)
     if _board_door_active and _board_door_alpha > 0:
         _draw_board_door_cutscene(screen)
@@ -215,6 +225,10 @@ def draw_ui(screen):
         hud.draw_skip_button(screen)
     if day_cycle.day in constants.BEACH_DAYS:
         _draw_beach_button(screen)
+    help_card = _help_card()
+    if help_card and not dialogue.active():
+        title, lines, accent = help_card
+        hud.draw_help_card(screen, title, lines, accent=accent)
 
 
 def _beach_btn_rect() -> pygame.Rect:
@@ -232,3 +246,61 @@ def _draw_beach_button(screen):
     lbl = font.render("→ Beach", True, (180, 210, 240))
     screen.blit(lbl, (r.centerx - lbl.get_width() // 2,
                       r.centery - lbl.get_height() // 2))
+
+
+def _pending_task_targets() -> set[str]:
+    pending = set()
+    for task in tasks.get_day_tasks(day_cycle.day):
+        idx = task.get("idx", 0)
+        if task.get("interactable") and not tasks.day_task_done(idx):
+            pending.add(task["interactable"])
+        elif task.get("task_type") == "board_door" and not tasks.day_task_done(idx):
+            pending.add("Lighthouse Door")
+    return pending
+
+
+def _help_card():
+    if tasks.all_day_tasks_done():
+        return (
+            "Next Step",
+            [
+                "Day chores are finished.",
+                "Use Skip to Night at the bottom-left when you are ready.",
+            ],
+            (92, 168, 108),
+        )
+
+    if day_cycle.day == 1:
+        pending = _pending_task_targets()
+        if pending == {"Lens"}:
+            return (
+                "Next Task",
+                [
+                    "The lens is the light at the top of the tower.",
+                    "Stand near the lighthouse and click the highlighted lens.",
+                ],
+                (172, 152, 108),
+            )
+        return (
+            "Tutorial",
+            [
+                "Gold markers show your current chores.",
+                "Click nearby highlighted objects to start their repair task.",
+                "The lighthouse door is not an interior transition.",
+            ],
+            (172, 152, 108),
+        )
+
+    if day_cycle.day in constants.BEACH_DAYS:
+        for task in tasks.get_day_tasks(day_cycle.day):
+            if task.get("task_type") == "beach" and not tasks.day_task_done(task.get("idx", 0)):
+                return (
+                    "Beach Task",
+                    [
+                        "The scientist's errand happens at the beach.",
+                        "Use the Beach button once you want to handle that job.",
+                    ],
+                    (120, 164, 214),
+                )
+
+    return None

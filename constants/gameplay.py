@@ -32,7 +32,6 @@ DAY_TASKS = {
         {"interactable": "Generator",  "minigame": "minigame_wires",    "idx": 0, "label": "Fix Generator Wiring"},
         {"interactable": "Lens",       "minigame": "minigame_clean",    "idx": 1, "label": "Clean the Lens"},
         {"interactable": "Breaker Box","minigame": "minigame_breakers", "idx": 2, "label": "Flip the Breakers"},
-        {"task_type": "beach",                                          "idx": 2, "label": "Assist Scientist"},
     ],
     2: [
         {"interactable": "Logbook",    "minigame": "minigame_pressure", "idx": 0, "label": "Log Pressure"},
