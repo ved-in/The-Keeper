@@ -41,6 +41,15 @@ _tasks_done_time = None
 
 _emergency_interactables: set = set()   # names currently in emergency mode
 
+# board-door cutscene (Day 7)
+_board_door_active   = False
+_board_door_timer    = 0.0
+_BOARD_DOOR_FADE     = 0.5
+_BOARD_DOOR_HOLD     = 1.8
+_board_door_alpha    = 0
+_board_door_stage    = "idle"
+_board_door_task_idx = 0
+
 # screen shake
 _shake_t         = 0.0
 _shake_intensity = 0.0
@@ -66,6 +75,7 @@ def init():
     global _t, _scene_t, _beacon_alpha, _dim_alpha, _tasks_done_time
     global _shake_t, _shake_intensity, _ending_phase, _ending_timer, _ending_alpha
     global _emergency_interactables, _day10_active, _day10_resolved
+    global _board_door_active, _board_door_stage, _board_door_alpha, _board_door_timer
     
     done = False
     _player                  = player.make_player()
@@ -83,6 +93,10 @@ def init():
     _emergency_interactables = set()
     _day10_active            = []
     _day10_resolved          = 0
+    _board_door_active       = False
+    _board_door_stage        = "idle"
+    _board_door_alpha        = 0
+    _board_door_timer        = 0.0
     _font                    = view.font(11)
     
     dialogue.clear()
@@ -123,11 +137,25 @@ def init():
             obj.on_use = _make_launcher(queue)
         _interactables.append(obj)
     
+    # Mark pending arrows on interactables that have tasks today
+    task_names = {t["interactable"] for t in day_task_list if t.get("interactable")}
+    for obj in _interactables:
+        obj.pending = obj.name in task_names
+
     door_def = constants.LIGHTHOUSE_DOOR
     door_obj = Interactable(
         "Lighthouse Door", door_def["world_x"], door_def["y"],
         door_def["w"], door_def["h"],
         {"default": ["The lighthouse entrance."]})
+    # board_door task: clicking the door triggers the boarding cutscene
+    for t in day_task_list:
+        if t.get("task_type") == "board_door":
+            task_idx = t["idx"]
+            def _board_door(idx=task_idx):
+                _start_board_door(idx)
+            door_obj.on_use = _board_door
+            door_obj.pending = True
+            break
     _interactables.append(door_obj)
     
     # visitors. fisherman only on his specific days, not via "default"
@@ -147,11 +175,26 @@ def init():
         _init_day10_emergencies()
 
 
+def _start_board_door(task_idx: int):
+    global _board_door_active, _board_door_timer, _board_door_alpha
+    global _board_door_stage, _board_door_task_idx
+    _board_door_active   = True
+    _board_door_timer    = 0.0
+    _board_door_alpha    = 0
+    _board_door_stage    = "fade_in"
+    _board_door_task_idx = task_idx
+
+
 def _init_day10_emergencies():
     global _day10_active
     _day10_active = emergency.fire_all()
     for em in _day10_active:
         _activate_emergency(em, on_complete=lambda e=em: _on_day10_emergency_complete(e))
+        # show pending arrow on each emergency interactable
+        for obj in _interactables:
+            if obj.name == em["interactable"]:
+                obj.pending = True
+                break
     _trigger_shake(2.0)
 
 
@@ -184,6 +227,7 @@ def _restore_task_on_use(obj):
     else:
         obj.on_use = None
     _emergency_interactables.discard(obj.name)
+    obj.pending = False
 
 
 def _activate_emergency(em: dict, on_complete=None):
@@ -249,6 +293,9 @@ def handle_event(event):
                 game.restart()
         return
 
+    if _board_door_active:
+        return
+
     if event.type == pygame.KEYDOWN and event.key in constants.ADVANCE_KEYS:
         dialogue.advance()
 
@@ -262,8 +309,30 @@ def handle_event(event):
 def update(dt):
     global _t, _scene_t, _beacon_alpha, _dim_alpha, done
     global _shake_t, _shake_intensity, _ending_phase, _ending_timer, _ending_alpha
-    
+    global _board_door_active, _board_door_timer, _board_door_alpha, _board_door_stage
+
     _t += dt
+
+    # board-door cutscene: freeze everything else while it plays
+    if _board_door_active:
+        _board_door_timer += dt
+        if _board_door_stage == "fade_in":
+            _board_door_alpha = min(255, int(255 * (_board_door_timer / _BOARD_DOOR_FADE)))
+            if _board_door_timer >= _BOARD_DOOR_FADE:
+                _board_door_stage = "hold"
+                _board_door_timer = 0.0
+        elif _board_door_stage == "hold":
+            _board_door_alpha = 255
+            if _board_door_timer >= _BOARD_DOOR_HOLD:
+                _board_door_stage = "fade_out"
+                _board_door_timer = 0.0
+        elif _board_door_stage == "fade_out":
+            _board_door_alpha = max(0, int(255 * (1.0 - _board_door_timer / _BOARD_DOOR_FADE)))
+            if _board_door_timer >= _BOARD_DOOR_FADE:
+                _board_door_active = False
+                _board_door_stage  = "idle"
+                _notify_task_done(_board_door_task_idx)
+        return
     
     # update clouds — treat as night once the sky is more than 40% darkened
     _t_dark_now = min(_scene_t / _DARKEN_DURATION, 1.0)
@@ -318,15 +387,14 @@ def update(dt):
             if em and em["interactable"] not in _emergency_interactables:
                 _activate_emergency(em)
     
-    # beacon / dim
-    any_beacon_off = any(
-        e.get("effect") in ("beacon_off", "both")
-        for e in (_day10_active if day_cycle.day == 10 else ([emergency.current()] if emergency.current() else []))
-    )
-    any_dim = any(
-        e.get("effect") in ("dim", "both")
-        for e in (_day10_active if day_cycle.day == 10 else ([emergency.current()] if emergency.current() else []))
-    )
+    # beacon / dim — on Day 10 only consider still-active (unresolved) emergencies
+    if day_cycle.day == 10:
+        active_day10 = [e for e in _day10_active if e["interactable"] in _emergency_interactables]
+        em_source = active_day10
+    else:
+        em_source = [emergency.current()] if emergency.current() else []
+    any_beacon_off = any(e.get("effect") in ("beacon_off", "both") for e in em_source)
+    any_dim        = any(e.get("effect") in ("dim", "both")        for e in em_source)
     target_beacon = 0.0 if any_beacon_off else 1.0
     target_dim    = 130 if any_dim else 0
     
@@ -388,8 +456,23 @@ def draw(screen):
         dim.fill((0, 0, 0, _dim_alpha))
         screen.blit(dim, (0, 0))
     
+    if _board_door_active and _board_door_alpha > 0:
+        _draw_board_door_cutscene(screen)
     if _ending_phase != "none":
         _draw_ending(screen)
+
+
+def _draw_board_door_cutscene(screen):
+    overlay = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
+    overlay.fill((0, 0, 0, _board_door_alpha))
+    screen.blit(overlay, (0, 0))
+    if _board_door_alpha > 80:
+        font = view.font(16, constants.FONT_PATH)
+        lbl  = font.render("You board up the lower doors.", True, (200, 190, 170))
+        lbl.set_alpha(_board_door_alpha)
+        cr   = view.content_rect()
+        screen.blit(lbl, (cr.centerx - lbl.get_width() // 2,
+                          cr.centery - lbl.get_height() // 2))
 
 
 def _draw_ending(screen):

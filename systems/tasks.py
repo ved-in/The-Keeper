@@ -2,6 +2,7 @@ import constants
 
 _day_tasks_done = []
 _night_tasks_done = []
+_tasks_day = 0   # which day _day_tasks_done was built for
 
 
 def _normalise(entry) -> list[dict]:
@@ -13,9 +14,12 @@ def _normalise(entry) -> list[dict]:
 
 
 def reset_for_day():
-    global _day_tasks_done
-    tasks = _normalise(constants.DAY_TASKS.get(_current_day()))
+    global _day_tasks_done, _tasks_day
+    d = _current_day()
+    _tasks_day = d
+    tasks = _normalise(constants.DAY_TASKS.get(d))
     _day_tasks_done = [False] * len(tasks)
+
 def reset_for_night():
     global _night_tasks_done
     tasks = _normalise(constants.NIGHT_TASKS.get(_current_day()))

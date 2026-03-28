@@ -32,7 +32,6 @@ DAY_TASKS = {
         {"interactable": "Generator",  "minigame": "minigame_wires",    "idx": 0, "label": "Fix Generator Wiring"},
         {"interactable": "Lens",       "minigame": "minigame_clean",    "idx": 1, "label": "Clean the Lens"},
         {"interactable": "Breaker Box","minigame": "minigame_breakers", "idx": 2, "label": "Flip the Breakers"},
-        {"task_type": "beach",                                          "idx": 2, "label": "Assist Scientist"},
     ],
     2: [
         {"interactable": "Logbook",    "minigame": "minigame_pressure", "idx": 0, "label": "Log Pressure"},
@@ -56,9 +55,9 @@ DAY_TASKS = {
         {"interactable": "Logbook",    "minigame": "minigame_pressure", "idx": 1, "label": "Log Pressure"},
     ],
     7: [
-        {"interactable": "Generator",  "minigame": "minigame_refuel",   "idx": 1, "label": "Refuel Generator"},
-        {"task_type": "board_door",                                     "idx": 2, "label": "Board Up Lower Doors"},
-        {"interactable": "Lens",       "minigame": "minigame_clean",    "idx": 3, "label": "Clean the Lens"},
+        {"interactable": "Generator",  "minigame": "minigame_refuel",   "idx": 0, "label": "Refuel Generator"},
+        {"task_type": "board_door",                                     "idx": 1, "label": "Board Up Lower Doors"},
+        {"interactable": "Lens",       "minigame": "minigame_clean",    "idx": 2, "label": "Clean the Lens"},
     ],
     8: [
         {"interactable": "Engine",     "minigame": "minigame_valves",   "idx": 0, "label": "Vent Engine Pressure"},
