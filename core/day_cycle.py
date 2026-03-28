@@ -8,7 +8,8 @@ day = 1
 def init():
     global _elapsed, day
     _elapsed = 0.0
-    day = 1
+    day = 1  # CHANGEE THISS VAL TO TEST DIFFERENT TASKS AND DAYSSSSSS
+    # THE HOLY GRAIL OF DEBUG ^^^^^
 
 
 def update(dt):

@@ -1,6 +1,6 @@
 import pygame
 import ui.dialogue as dialogue
-from entities.interactables import Interactable
+from entities.interactables import Interactable, _draw_bounce_arrow
 import entities.animations as animations
 import entities.player as player
 
@@ -60,3 +60,6 @@ class Visitor(Interactable):
             for ox, oy in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
                 screen.blit(outline, (lx + ox, ly + oy))
             screen.blit(label, (lx, ly))
+        # bouncing arrow when visitor has lines today and hasn't been talked to
+        if self.pending and not self.talked_today:
+            _draw_bounce_arrow(screen, rect)
