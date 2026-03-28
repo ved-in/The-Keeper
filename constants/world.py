@@ -1,6 +1,6 @@
 DAY_LENGTH = 120.0  # seconds
 
-SPEED    = 100
+SPEED    = 300
 GROUND_Y = 400
 
 SKY_COLORS = {

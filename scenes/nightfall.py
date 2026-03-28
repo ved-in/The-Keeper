@@ -125,6 +125,7 @@ def handle_event(event):
 def update(dt):
     global _t, _wait_timer, _phase, done, _night_timer, _dim_alpha, _beacon_alpha
     _t += dt
+    lighthouse.update_clouds(dt, night=True)
     dialogue.update(dt)
     # block player movement while the dialogue is showing
     if not dialogue.active():
@@ -187,7 +188,7 @@ def _start_outro():
 
 def draw(screen):
     screen.fill(constants.SKY_COLORS["night"])
-    lighthouse.draw(screen)
+    lighthouse.draw(screen, night=True)
 
     # sin wave gives a smooth 0 to 1 to 0 pulse value
     pulse = (math.sin(_t * 3.2) + 1.0) * 0.5

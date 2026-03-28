@@ -156,6 +156,8 @@ def handle_event(event):
 def update(dt):
     global _board_door_active, _board_door_timer, _board_door_alpha, _board_door_stage
     
+    lighthouse.update_clouds(dt, night=False)
+    
     if _board_door_active:
         _board_door_timer += dt
         if _board_door_stage == "fade_in":
@@ -185,7 +187,7 @@ def update(dt):
 
 
 def draw(screen):
-    lighthouse.draw(screen)
+    lighthouse.draw(screen, night=False)
     for obj in _interactables + _visitors:
         obj.draw(screen, player._world_offset, _font)
     player.draw(screen, _player)
