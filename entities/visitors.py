@@ -54,4 +54,9 @@ class Visitor(Interactable):
             pygame.draw.rect(screen, color, rect, border_radius=3)
         if font:
             label = font.render(self.name, True, (240, 235, 210))
-            screen.blit(label, (rect.centerx - label.get_width() // 2, rect.top - label.get_height()))
+            outline = font.render(self.name, True, (0, 0, 0))
+            lx = rect.centerx - label.get_width() // 2
+            ly = rect.top - label.get_height()
+            for ox, oy in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
+                screen.blit(outline, (lx + ox, ly + oy))
+            screen.blit(label, (lx, ly))
