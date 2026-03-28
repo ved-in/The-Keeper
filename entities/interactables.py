@@ -6,8 +6,6 @@ import entities.animations as animations
 
 from typing import Optional, Callable
 
-INTERACT_RANGE = 120  # max world-x distance to trigger interaction
-
 
 def _draw_bounce_arrow(screen, rect):
     t = pygame.time.get_ticks() / 1000.0
@@ -46,7 +44,7 @@ def _draw_bounce_arrow(screen, rect):
 
 
 class Interactable:    
-    def __init__(self, name, world_x, y, w, h, lines_by_day, color=(140, 130, 120), anim_path=None, anim_scale=1.0):
+    def __init__(self, name, world_x, y, w, h, lines_by_day, color=(140, 130, 120), anim_path=None, anim_scale=1.0, anim_key=None):
         self.name = name
         self.world_x = world_x
         self.y = y
@@ -59,10 +57,14 @@ class Interactable:
         self.pending = False   # True when this object has an active task/dialogue today
         self.on_use: Optional[Callable[[], None]] = None # F__K PYLANCEEE
         
-        self.anim_key = None
-        if anim_path:
+        # if anim_key is provided directly, use that instead of auto-registering
+        if anim_key:
+            self.anim_key = anim_key
+        elif anim_path:
             self.anim_key = f"interactable_{name.lower().replace(' ', '_')}"
             animations.register(self.anim_key, "idle", anim_path, scale=anim_scale)
+        else:
+            self.anim_key = None
     
     def reset_daily(self):
         self.used_today = False
@@ -80,12 +82,6 @@ class Interactable:
         if not self.is_on_screen(world_offset):
             return False
         if self.screen_rect(world_offset).collidepoint(pos):
-            import entities.player as player
-            p = player._player
-            if p is not None:
-                player_world_x = p["x"] - player._world_offset
-                if abs(player_world_x - self.world_x) > INTERACT_RANGE:
-                    return False
             if hasattr(self, "on_use") and self.on_use:
                 self.on_use()
                 return True
@@ -106,8 +102,10 @@ class Interactable:
                 # center the sprite on the rect center
                 screen.blit(frame, (rect.centerx - frame.get_width() // 2, rect.centery - frame.get_height() // 2))
         else:
-            color = tuple(max(0, c - 40) for c in self.color) if self.used_today else self.color
-            pygame.draw.rect(screen, color, rect, border_radius=3)
+            # Only draw grey box for Light Motor, skip for Lens and Lighthouse Door
+            if self.name not in ("Lens", "Lighthouse Door"):
+                color = tuple(max(0, c - 40) for c in self.color) if self.used_today else self.color
+                pygame.draw.rect(screen, color, rect, border_radius=3)
         if self.hovered and font:
             label = font.render(self.name, True, (240, 235, 210))
             outline = font.render(self.name, True, (0, 0, 0))
