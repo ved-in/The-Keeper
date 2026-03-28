@@ -13,12 +13,14 @@ import core.view as view
 import entities.player as player
 import entities.animations as animations
 import scenes.lighthouse as lighthouse
+import ui.hud as hud
 from entities.visitors import Visitor
 
 done    = False
 _player = None
 _fisherman: Visitor | None = None
 _font   = None
+_bg_raw = None
 
 _LEFT_EDGE = 40
 _RIGHT_EDGE = 920
@@ -27,7 +29,7 @@ _GROUND_Y = 360
 
 def init():
     global done, _player, _fisherman, _font
-    global bg_rect, bg_surface
+    global bg_rect, bg_surface, _bg_raw
     done = False
     
     # player starts at the left side of the beach
@@ -52,8 +54,19 @@ def init():
         anim_scale=constants.VISITORS[1]["anim_scale"],    # ← from constants (was hardcoded 4.5)
     )
 
-    bg_surface = pygame.image.load('assets/map/beach_intro.png').convert_alpha()
-    bg_rect = bg_surface.get_rect()
+    _bg_raw = pygame.image.load('assets/map/beach_intro.png').convert_alpha()
+    rebuild_scaled()
+
+
+def rebuild_scaled():
+    global bg_surface, bg_rect
+    if _bg_raw is None:
+        bg_surface = None
+        bg_rect = pygame.Rect(0, 0, 0, 0)
+        return
+    content = view.content_rect()
+    bg_surface = pygame.transform.scale(_bg_raw, content.size)
+    bg_rect = bg_surface.get_rect(topleft=content.topleft)
 
 
 def handle_event(event):
@@ -87,10 +100,11 @@ def update(dt):
 
 def draw(screen):
     global bg_surface, bg_rect
-    screen.blit(bg_surface, bg_rect)
+    if bg_surface:
+        screen.blit(bg_surface, bg_rect)
     lighthouse.draw_clouds(screen, night=False)
     # background is drawn by game.py via sky_color() — just draw scene elements
-    _fisherman.draw(screen, 0, _font, flip=True)
+    _fisherman.draw(screen, 0, _font, flip=True, highlight=not dialogue.active())
     player.draw(screen, _player)
     
     dialogue.draw(
@@ -101,7 +115,16 @@ def draw(screen):
 
 
 def draw_ui(screen):
-    pass
+    if not dialogue.active():
+        hud.draw_help_card(
+            screen,
+            "Tutorial",
+            [
+                "Move with A and D, or click the dock to walk.",
+                "Get close to the fisherman, then click him to talk.",
+            ],
+            accent=(120, 164, 214),
+        )
 
 
 def _update_player(dt):

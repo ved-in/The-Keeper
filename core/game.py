@@ -10,6 +10,7 @@ import scenes.beach as beach
 import entities.animations as animations
 import systems.tasks as tasks
 import systems.minigame_overlay as minigame_overlay
+import ui.dialogue as dialogue
 import constants
 
 import pygame
@@ -163,7 +164,8 @@ def update(dt):
         
     # only tick the day clock when in day BUT not fading in or out
     if scene == "lighthouse" and not _fading_in and not _fading_out:
-        day_cycle.update(dt)
+        if not dialogue.active():
+            day_cycle.update(dt)
         animations.update(dt)
         _current_scene().update(dt)
         if day_cycle.is_night():
@@ -246,3 +248,9 @@ def apply_red_overlay(screen, day):
         r = int(max_r * t)
         pygame.draw.circle(overlay, (180, 0, 0, ring_alpha), (cx, cy), r)
     screen.blit(overlay, (0, 0))
+
+
+def handle_resize():
+    animations.rebuild_scaled()
+    lighthouse.rebuild_scaled()
+    beach_intro.rebuild_scaled()

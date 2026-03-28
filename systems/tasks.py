@@ -2,6 +2,7 @@ import constants
 
 _day_tasks_done = {}
 _night_tasks_done = {}
+_tasks_day = 1
 
 
 def _normalise(entry) -> list[dict]:
@@ -13,8 +14,9 @@ def _normalise(entry) -> list[dict]:
 
 
 def reset_for_day():
-    global _day_tasks_done
-    tasks = _normalise(constants.DAY_TASKS.get(_current_day()))
+    global _day_tasks_done, _tasks_day
+    _tasks_day = _current_day()
+    tasks = _normalise(constants.DAY_TASKS.get(_tasks_day))
     _day_tasks_done = {_task_id(task, i): False for i, task in enumerate(tasks)}
 def reset_for_night():
     global _night_tasks_done

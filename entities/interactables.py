@@ -20,6 +20,7 @@ class Interactable:
         self.color = color
         self.used_today = False
         self.hovered = False
+        self.pending = False
         self.on_use: Optional[Callable[[], None]] = None # F__K PYLANCEEE
         
         # if anim_key is provided directly, use that instead of auto-registering
@@ -85,6 +86,8 @@ class Interactable:
             for ox, oy in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
                 screen.blit(outline, (lx + ox, ly + oy))
             screen.blit(label, (lx, ly))
+        if self.pending and not highlight and not self.used_today and self.is_on_screen(world_offset):
+            _draw_bounce_arrow(screen, rect)
 
 
 def _draw_marker(screen, rect, color):
@@ -119,4 +122,26 @@ def _draw_marker(screen, rect, color):
 
     pygame.draw.polygon(screen, (20, 16, 16), shadow_points)
     pygame.draw.polygon(screen, color, points)
+    pygame.draw.polygon(screen, (245, 236, 214), points, width=max(1, view.scale(1)))
+
+
+def _draw_bounce_arrow(screen, rect):
+    pulse = 0.5 + (math.sin(pygame.time.get_ticks() * 0.006) * 0.5)
+    size = view.scale(6)
+    center_x = rect.centerx
+    center_y = rect.top - view.scale(18) - int(pulse * view.scale(5))
+
+    shadow_points = [
+        (center_x, center_y + size + view.scale(2)),
+        (center_x + size, center_y - size + view.scale(2)),
+        (center_x - size, center_y - size + view.scale(2)),
+    ]
+    points = [
+        (center_x, center_y + size),
+        (center_x + size, center_y - size),
+        (center_x - size, center_y - size),
+    ]
+
+    pygame.draw.polygon(screen, (20, 16, 16), shadow_points)
+    pygame.draw.polygon(screen, (214, 194, 122), points)
     pygame.draw.polygon(screen, (245, 236, 214), points, width=max(1, view.scale(1)))

@@ -105,6 +105,7 @@ def init():
     start_lines = constants.DAY_START_SCRIPTS.get(day)
     if start_lines:
         dialogue.show(start_lines, style="thought", default_speaker="player")
+    _refresh_pending_flags()
 
 
 def _start_board_door(task_idx: int):
@@ -121,6 +122,7 @@ def notify_task_done(idx: int = 0):
     """Called by a day minigame when it completes."""
     global _phase
     tasks.complete_day_task(idx)
+    _refresh_pending_flags()
     if tasks.all_day_tasks_done():
         _phase = "outro"
         day_finish = constants.DAY_FINISH_SCRIPTS.get(day_cycle.day, [])
@@ -304,3 +306,11 @@ def _help_card():
                 )
 
     return None
+
+
+def _refresh_pending_flags():
+    pending_names = _pending_task_targets()
+    for obj in _interactables:
+        obj.pending = obj.name in pending_names
+    for visitor in _visitors:
+        visitor.pending = day_cycle.day in visitor.lines_by_day

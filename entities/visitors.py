@@ -65,3 +65,6 @@ class Visitor(Interactable):
             for ox, oy in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
                 screen.blit(outline, (lx + ox, ly + oy))
             screen.blit(label, (lx, ly))
+        if self.pending and not highlight and not self.talked_today and self.is_on_screen(world_offset):
+            from entities.interactables import _draw_bounce_arrow
+            _draw_bounce_arrow(screen, rect)

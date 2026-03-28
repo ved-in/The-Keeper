@@ -34,7 +34,8 @@ def draw(screen):
     # show the current day number and the time-of-day progress bar
     _draw_label(screen, f"Day {day_cycle.day}", (200, 195, 215))
     _draw_progress_bar(screen)
-    task_list = tasks.get_day_tasks(day_cycle.day)
+    task_day = getattr(tasks, "_tasks_day", day_cycle.day)
+    task_list = tasks.get_day_tasks(task_day)
     done_list = [tasks.day_task_done(task.get("idx", i)) for i, task in enumerate(task_list)]
     _draw_task_panel(screen, task_list, done_list)
 
@@ -43,7 +44,8 @@ def draw_day_night(screen, active_emergency, scene_t=0.0, scene_duration=120.0):
     _draw_label(screen, f"Day {day_cycle.day}?", (180, 140, 140))
     
     _draw_scene_progress_bar(screen, scene_t, scene_duration, paused=active_emergency is not None)
-    task_list = tasks.get_day_tasks(day_cycle.day)
+    task_day = getattr(tasks, "_tasks_day", day_cycle.day)
+    task_list = tasks.get_day_tasks(task_day)
     done_list = [tasks.day_task_done(task.get("idx", i)) for i, task in enumerate(task_list)]
     _draw_task_panel(screen, task_list, done_list)
     if active_emergency:
