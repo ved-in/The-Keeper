@@ -4,6 +4,8 @@ import pygame
 # everything is authored at this size and then scaled to the actual window
 BASE_W = 1000
 BASE_H = 540
+REFERENCE_W = 1280
+REFERENCE_H = 720
 
 _scale = 1.0
 _off_x = 0
@@ -55,6 +57,14 @@ def point(x_pos, y_pos):
 def content_rect():
     # returns the rectangle representing the playable area inside the window
     return pygame.Rect(_off_x, _off_y, scale(BASE_W), scale(BASE_H))
+
+
+def current_scale():
+    return _scale
+
+
+def reference_scale():
+    return min(REFERENCE_W / BASE_W, REFERENCE_H / BASE_H)
 
 
 def font(size, path=None):
