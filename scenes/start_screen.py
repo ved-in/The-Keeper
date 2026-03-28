@@ -55,7 +55,8 @@ def update(dt):
 
 def draw(screen):
     w, h = screen.get_size()
-    cx   = w // 2
+    cr   = view.content_rect()
+    cx   = cr.centerx
     
     screen.fill(_BG)
     lighthouse.draw(screen)
@@ -76,13 +77,20 @@ def draw(screen):
     pygame.draw.rect(screen, (0, 0, 0), (0, 0, w, bar_h))
     pygame.draw.rect(screen, (0, 0, 0), (0, h - bar_h, w, bar_h))
     
-    rect_surf = pygame.Surface((600, 350), pygame.SRCALPHA)
-    pygame.draw.rect(rect_surf, (0, 0, 0, 200), rect_surf.get_rect(), border_radius=20)
-    screen.blit(rect_surf, rect_surf.get_rect(center=(640, 380)))
+    panel_w = view.scale(470)
+    panel_h = view.scale(274)
+    rect_surf = pygame.Surface((panel_w, panel_h), pygame.SRCALPHA)
+    pygame.draw.rect(
+        rect_surf,
+        (0, 0, 0, 200),
+        rect_surf.get_rect(),
+        border_radius=view.scale(20),
+    )
+    screen.blit(rect_surf, rect_surf.get_rect(center=view.point(500, 286)))
     
     title_font = view.font(46, constants.FONT_PATH)
     title_surf = title_font.render("THE KEEPER", True, _WHITE)
-    title_rect = title_surf.get_rect(center=(cx, int(h * 0.42)))
+    title_rect = title_surf.get_rect(center=view.point(500, 225))
     
     shadow_surf = title_font.render("THE KEEPER", True, (0, 0, 0))
     screen.blit(shadow_surf, title_rect.move(view.scale(2), view.scale(3)))
@@ -107,7 +115,7 @@ def draw(screen):
         prompt_font = view.font(10, constants.FONT_PATH)
         prompt_surf = prompt_font.render("— PRESS ANY KEY TO BEGIN —", True, _GOLD)
         prompt_surf.set_alpha(blink_alpha)
-        prompt_rect = prompt_surf.get_rect(center=(cx, int(h * 0.70)))
+        prompt_rect = prompt_surf.get_rect(center=view.point(500, 384))
         screen.blit(prompt_surf, prompt_rect)
     
     fade_alpha = 0
