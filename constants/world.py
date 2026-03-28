@@ -30,6 +30,8 @@ INTERACTABLES = [
             2:         ["The barometer reads low.", "You should log it."],
             "default": ["Nothing new to log."],
         },
+        "anim_path": "assets/book",
+        "anim_scale": 0.3,
     },
     {
         "name": "Generator",
