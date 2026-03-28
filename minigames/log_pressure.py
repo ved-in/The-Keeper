@@ -89,9 +89,9 @@ class LogPressure(Minigame):
         screen.blit(ttl, (dial_cx - ttl.get_width() // 2, dial_cy - dial_r - ttl.get_height() - view.scale(2)))
 
         # logbook
-        book_x = content_rect.left + int(content_rect.width * 0.56)
-        book_w = int(content_rect.width * 0.38)
-        book_h = int(content_rect.height * 0.55)
+        book_x = content_rect.left + int(content_rect.width * 0.61)
+        book_w = int(content_rect.width * 0.28)
+        book_h = int(content_rect.height * 0.40)
         book   = pygame.Rect(book_x, content_rect.centery - book_h // 2, book_w, book_h)
 
         pygame.draw.rect(screen, (228, 220, 198), book, border_radius=view.scale(4))

@@ -24,12 +24,14 @@ INTERACTABLES = [
         "name": "Logbook",
         "world_x": 200,
         "y": 350,
-        "w": 24,
-        "h": 30,
+        "w": 12,
+        "h": 15,
         "lines": {
             2:         ["The barometer reads low.", "You should log it."],
             "default": ["Nothing new to log."],
         },
+        "anim_path": "assets/book",
+        "anim_scale": 0.3,
     },
     {
         "name": "Generator",
