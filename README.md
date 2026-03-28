@@ -13,14 +13,7 @@ You are the keeper of a lighthouse in a world where the sun never fully sets. Th
 
 ## To Add/Fix
 
-- [ ] Note to fix: Add fixed value to scientist
-- [ ] Beacon minigame for rhythm/timing repair
-- [ ] Night scripts for day 2 and day 3
-- [ ] Need removal of old night_task code. Currently only emergencies are used in night
-- [ ] Need to wire up assets of fisherman, beach, sea, ships
 - [ ] Need assets for interactables
-- [ ] Need a system to make certain tasks as emergency in night if user didnt do them in day.
-- [ ] Prolly a lot of dead code here, needs removal ig
 
 ## Controls
 

@@ -9,12 +9,15 @@ import entities.animations as animations
 # negative means scrolled right, positive means scrolled left
 _world_offset = 0.0
 _pointer_img = None
+_player = None  # current player dict; set by make_player() for cross-module access
 
 
 def make_player():
+    global _player
     # x and y are the fixed screen position of the player rectangle
     # the player never actually moves on screen, the world scrolles around them
-    return {"x": 480.0, "y": 360.0, "w": 24, "h": 40, "target_world_x": None}
+    _player = {"x": 480.0, "y": 360.0, "w": 24, "h": 40, "target_world_x": None}
+    return _player
 
 
 def reset_world():

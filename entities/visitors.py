@@ -2,6 +2,9 @@ import pygame
 import ui.dialogue as dialogue
 from entities.interactables import Interactable
 import entities.animations as animations
+import entities.player as player
+
+INTERACT_RANGE = 120  # max world-x distance to trigger dialogue
 
 class Visitor(Interactable):
     def __init__(self, name, world_x, y, y_offset, lines_by_day, anim_folder=None, anim_scale=1.0, anim_key=None):
@@ -27,6 +30,11 @@ class Visitor(Interactable):
         if not self.is_on_screen(world_offset):
             return False
         if self.screen_rect(world_offset).collidepoint(pos):
+            p = player._player
+            if p is not None:
+                player_world_x = p["x"] - player._world_offset
+                if abs(player_world_x - self.world_x) > INTERACT_RANGE:
+                    return False
             lines = self.lines_by_day.get(day, self.lines_by_day.get("default", ["..."]))
             dialogue.show(lines, style="thought", reveal_speed=40, npc_rect=self.screen_rect(world_offset))
             self.talked_today = True
@@ -46,4 +54,9 @@ class Visitor(Interactable):
             pygame.draw.rect(screen, color, rect, border_radius=3)
         if font:
             label = font.render(self.name, True, (240, 235, 210))
-            screen.blit(label, (rect.centerx - label.get_width() // 2, rect.top - label.get_height()))
+            outline = font.render(self.name, True, (0, 0, 0))
+            lx = rect.centerx - label.get_width() // 2
+            ly = rect.top - label.get_height()
+            for ox, oy in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
+                screen.blit(outline, (lx + ox, ly + oy))
+            screen.blit(label, (lx, ly))

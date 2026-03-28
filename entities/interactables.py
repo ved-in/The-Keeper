@@ -5,6 +5,8 @@ import entities.animations as animations
 
 from typing import Optional, Callable
 
+INTERACT_RANGE = 120  # max world-x distance to trigger interaction
+
 
 class Interactable:    
     def __init__(self, name, world_x, y, w, h, lines_by_day, color=(140, 130, 120), anim_path=None, anim_scale=1.0):
@@ -40,6 +42,12 @@ class Interactable:
         if not self.is_on_screen(world_offset):
             return False
         if self.screen_rect(world_offset).collidepoint(pos):
+            import entities.player as player
+            p = player._player
+            if p is not None:
+                player_world_x = p["x"] - player._world_offset
+                if abs(player_world_x - self.world_x) > INTERACT_RANGE:
+                    return False
             if hasattr(self, "on_use") and self.on_use:
                 self.on_use()
                 return True
@@ -64,4 +72,9 @@ class Interactable:
             pygame.draw.rect(screen, color, rect, border_radius=3)
         if self.hovered and font:
             label = font.render(self.name, True, (240, 235, 210))
-            screen.blit(label, (rect.centerx - label.get_width() // 2, rect.top - label.get_height() - 6))
+            outline = font.render(self.name, True, (0, 0, 0))
+            lx = rect.centerx - label.get_width() // 2
+            ly = rect.top - label.get_height() - 6
+            for ox, oy in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
+                screen.blit(outline, (lx + ox, ly + oy))
+            screen.blit(label, (lx, ly))

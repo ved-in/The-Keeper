@@ -123,6 +123,13 @@ def init():
             obj.on_use = _make_launcher(queue)
         _interactables.append(obj)
     
+    door_def = constants.LIGHTHOUSE_DOOR
+    door_obj = Interactable(
+        "Lighthouse Door", door_def["world_x"], door_def["y"],
+        door_def["w"], door_def["h"],
+        {"default": ["The lighthouse entrance."]})
+    _interactables.append(door_obj)
+    
     # visitors. fisherman only on his specific days, not via "default"
     _visitors = []
     for v in constants.VISITORS:

@@ -192,7 +192,14 @@ def _advance_day():
 
 def draw(screen):
     # fill the background with the current sky color before anything else draws
-    screen.fill(day_cycle.sky_color())
+    sky_color = day_cycle.sky_color()
+    
+    # Bugfix: If we are in the middle of switching to nightfall, keep the sky 
+    # as 'day' until the fade is 100% black to prevent the visual 'pop'.
+    if scene == "lighthouse" and _fading_in:
+        sky_color = constants.SKY_COLORS["day"]
+        
+    screen.fill(sky_color)
     
     # draws non-ui elements
     _current_scene().draw(screen)
@@ -218,7 +225,15 @@ def apply_red_overlay(screen, day):
     alpha = constants.RED_OVERLAY_ALPHA.get(day, 0)
     if alpha == 0:
         return
-    overlay = pygame.Surface(screen.get_size())
-    overlay.fill((255, 0, 0))
-    overlay.set_alpha(alpha)
+    w, h = screen.get_size()
+    overlay = pygame.Surface((w, h), pygame.SRCALPHA)
+    cx, cy = w // 2, h // 2
+    max_r = int((cx ** 2 + cy ** 2) ** 0.5)
+    # draw concentric circles from edge inward, fading to transparent at center
+    steps = 48
+    for i in range(steps, 0, -1):
+        t = i / steps                          # 1.0 at edge, near 0 at center
+        ring_alpha = int(alpha * (t ** 1.6))   # power curve — sharp edge, soft center
+        r = int(max_r * t)
+        pygame.draw.circle(overlay, (180, 0, 0, ring_alpha), (cx, cy), r)
     screen.blit(overlay, (0, 0))

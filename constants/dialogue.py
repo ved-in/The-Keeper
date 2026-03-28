@@ -82,7 +82,10 @@ VISITORS = [
     {
         "name": "Fisherman",
         "world_x": 650,
-        "y": 360,
+        "y": 350,
+        "anim_folder": "assets/characters/fisherman/idle",
+        "anim_scale": 2.2,
+        "y_offset": 40,
         "lines": {
             1: [
                 {"text": "Supply drop is on the dock.", "speaker": "npc"},
