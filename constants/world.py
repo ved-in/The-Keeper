@@ -1,6 +1,6 @@
-DAY_LENGTH = 30.0  # seconds
+DAY_LENGTH = 120.0  # seconds
 
-SPEED    = 200
+SPEED    = 100
 GROUND_Y = 400
 
 SKY_COLORS = {
@@ -11,10 +11,10 @@ SKY_COLORS = {
 INTERACTABLES = [
     {
         "name": "Lens",
-        "world_x": 600,
-        "y": 330,
-        "w": 30,
-        "h": 30,
+        "world_x": 480,
+        "y": 170,
+        "w": 15,
+        "h": 15,
         "lines": {
             1:         ["The salt crust is thick.", "You clean it carefully."],
             "default": ["The lens is clean."],
@@ -23,7 +23,7 @@ INTERACTABLES = [
     {
         "name": "Logbook",
         "world_x": 200,
-        "y": 350,
+        "y": 375,
         "w": 24,
         "h": 30,
         "lines": {
@@ -33,10 +33,10 @@ INTERACTABLES = [
     },
     {
         "name": "Generator",
-        "world_x": -50,
+        "world_x": -120,
         "y": 370,
-        "w": 36,
-        "h": 34,
+        "w": 70,
+        "h": 70,
         "lines": {
             1:         ["The generator hums unevenly.", "The wires are frayed."],
             3:         ["The cables look worse.", "Better replace them now."],
@@ -45,20 +45,20 @@ INTERACTABLES = [
     },
     {
         "name": "Breaker Box",
-        "world_x": -10,
-        "y": 350,
-        "w": 28,
-        "h": 36,
+        "world_x": 450,
+        "y": 370,
+        "w": 20,
+        "h": 20,
         "lines": {
             "default": ["The breaker panel is mounted to the wall.", "Some switches look tripped."],
         },
     },
     {
         "name": "Engine",
-        "world_x": -140,
-        "y": 370,
+        "world_x": -190,
+        "y": 380,
         "w": 40,
-        "h": 32,
+        "h": 40,
         "lines": {
             8:         ["The engine is running hot.", "The pipes are shaking."],
             "default": ["The engine rumbles steadily."],
@@ -66,8 +66,8 @@ INTERACTABLES = [
     },
     {
         "name": "Light Motor",
-        "world_x": 500,
-        "y": 320,
+        "world_x": 480,
+        "y": 250,
         "w": 28,
         "h": 28,
         "lines": {
