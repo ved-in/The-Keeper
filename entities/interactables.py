@@ -108,8 +108,8 @@ class Interactable:
                 # center the sprite on the rect center
                 screen.blit(frame, (rect.centerx - frame.get_width() // 2, rect.centery - frame.get_height() // 2))
         else:
-            # Only draw grey box for Light Motor, skip for Lens and Lighthouse Door
-            if self.name not in ("Lens", "Lighthouse Door"):
+            # Only draw grey box for Light Motor, skip for Lens, Lighthouse Door, and Engine
+            if self.name not in ("Lens", "Lighthouse Door", "Engine"):
                 color = tuple(max(0, c - 40) for c in self.color) if self.used_today else self.color
                 pygame.draw.rect(screen, color, rect, border_radius=3)
         if self.hovered and font:

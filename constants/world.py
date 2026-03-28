@@ -61,10 +61,10 @@ INTERACTABLES = [
     },
     {
         "name": "Engine",
-        "world_x": -190,
+        "world_x": -155,
         "y": 380,
-        "w": 40,
-        "h": 40,
+        "w": 20,
+        "h": 50,
         "lines": {
             8:         ["The engine is running hot.", "The pipes are shaking."],
             "default": ["The engine rumbles steadily."],
