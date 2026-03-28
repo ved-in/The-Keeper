@@ -35,7 +35,7 @@ DAY_FINISH_SCRIPTS = {
     2:  ["Pressure logged.", "The numbers are getting worse."],
     3:  ["Cables replaced.", "The light should hold another night."],
     4:  ["Bulb is clean.", "The beam is as strong as it can be."],
-    5:  ["Sensors placed.", "The scientist seems to know something she isn't saying."],
+    5:  ["Sensors placed.", "The scientist seems to know something he isn't saying."],
     6:  ["Shutters locked.", "The red dust gets in everywhere."],
     7:  ["Doors boarded.", "Won't stop much, but it's something."],
     8:  ["Engine cooled down.", "It won't last much longer."],
@@ -50,7 +50,7 @@ VISITORS = [
         "y": 360,
         "anim_folder": "assets/characters/scientist",
         "anim_scale": 3.0,
-        "y_offset": 23,
+        "y_offset": 43,
         "lines": {
             5: [
                 {"text": "Excuse me, I need to deploy seismic and atmospheric sensors on your beach immediately.", "speaker": "npc"},
@@ -81,7 +81,7 @@ VISITORS = [
     },
     {
         "name": "Fisherman",
-        "world_x": 650,
+        "world_x": 680,
         "y": 350,
         "anim_folder": "assets/characters/fisherman/idle",
         "anim_scale": 2.2,

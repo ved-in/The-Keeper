@@ -12,6 +12,7 @@ import constants
 import core.view as view
 import entities.player as player
 import entities.animations as animations
+import scenes.lighthouse as lighthouse
 from entities.visitors import Visitor
 
 done    = False
@@ -70,6 +71,7 @@ def handle_event(event):
 
 
 def update(dt):
+    lighthouse.update_clouds(dt, night=False)
     dialogue.update(dt)
     
     if dialogue.active():
@@ -86,6 +88,7 @@ def update(dt):
 def draw(screen):
     global bg_surface, bg_rect
     screen.blit(bg_surface, bg_rect)
+    lighthouse.draw_clouds(screen, night=False)
     # background is drawn by game.py via sky_color() — just draw scene elements
     _fisherman.draw(screen, 0, _font, flip=True)
     player.draw(screen, _player)

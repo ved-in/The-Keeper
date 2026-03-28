@@ -265,6 +265,10 @@ def update(dt):
     
     _t += dt
     
+    # update clouds — treat as night once the sky is more than 40% darkened
+    _t_dark_now = min(_scene_t / _DARKEN_DURATION, 1.0)
+    lighthouse.update_clouds(dt, night=(_t_dark_now > 0.4))
+    
     # shake decay
     if _shake_t > 0:
         _shake_t = max(0.0, _shake_t - dt)
@@ -359,7 +363,7 @@ def draw(screen):
     world_surf = pygame.Surface(screen.get_size())
     world_surf.fill((r, g, b))
     
-    lighthouse.draw(world_surf)
+    lighthouse.draw(world_surf, night=(t_dark > 0.4))
     
     pulse = (math.sin(_t * 3.2) + 1.0) * 0.5
     ga = int(18 * _beacon_alpha)

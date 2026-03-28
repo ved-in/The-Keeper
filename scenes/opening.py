@@ -35,6 +35,7 @@ def handle_event(event):
 def update(dt):
     global _t
     _t += dt
+    lighthouse.update_clouds(dt, night=True)
     if not done:
         dialogue.update(dt)
 
@@ -42,7 +43,7 @@ def update(dt):
 def draw(screen):
     cfg = constants.OPENING_SCENE
     screen.fill(constants.SKY_COLORS["night"])
-    lighthouse.draw(screen)
+    lighthouse.draw(screen, night=True)
     w, h = screen.get_size()
 
     # semi-transparent dark overlay to give the opening a moody dim look
@@ -79,4 +80,3 @@ def draw(screen):
         fade = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
         fade.fill((0, 0, 0, int(255 * (1.0 - (_t / cfg["fade_in"])))))
         screen.blit(fade, (0, 0))
-    
