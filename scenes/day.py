@@ -94,6 +94,10 @@ def init():
     
     _visitors = []
     for v in constants.VISITORS:
+        # Fisherman only appears on days he has specific dialogue for.
+        # After his last appearance (day 7) he should not be visible at all.
+        if v["name"] == "Fisherman" and day_cycle.day not in v["lines"]:
+            continue
         visitor = Visitor(
             v["name"], v["world_x"], v["y"],
             v.get("y_offset", 0), v["lines"],
@@ -101,6 +105,14 @@ def init():
             anim_scale=v.get("anim_scale", 1.0)
         )
         _visitors.append(visitor)
+
+    # Mark pending: interactables with tasks today, visitors with day-specific lines only
+    task_names = {t["interactable"] for t in day_task_list if t.get("interactable")}
+    for obj in _interactables:
+        obj.pending = obj.name in task_names
+    for v in _visitors:
+        # only show arrow for day-specific lines, not generic "default" lines
+        v.pending = day_cycle.day in v.lines_by_day
 
 
 def _start_board_door(task_idx: int):
@@ -117,6 +129,25 @@ def notify_task_done(idx: int = 0):
     """Called by a day minigame when it completes."""
     global _phase
     tasks.complete_day_task(idx)
+
+    # Clear the arrow on the interactable whose task just finished,
+    # but only if all its tasks are now done
+    day_task_list = tasks.get_day_tasks(day_cycle.day)
+    if idx < len(day_task_list):
+        interactable_name = day_task_list[idx].get("interactable")
+        if interactable_name:
+            # check if every task belonging to this interactable is now done
+            all_done_for_obj = all(
+                tasks.day_task_done(t["idx"])
+                for t in day_task_list
+                if t.get("interactable") == interactable_name
+            )
+            if all_done_for_obj:
+                for obj in _interactables:
+                    if obj.name == interactable_name:
+                        obj.used_today = True  # hides the arrow
+                        break
+
     if tasks.all_day_tasks_done():
         _phase = "outro"
         day_finish = constants.DAY_FINISH_SCRIPTS.get(day_cycle.day, [])
@@ -126,6 +157,15 @@ def notify_task_done(idx: int = 0):
 
 def _active_visitors():
     return [v for v in _visitors if day_cycle.day in v.lines_by_day or "default" in v.lines_by_day]
+
+
+def _all_done() -> bool:
+    """True when all tasks are complete and all active visitors have been talked to."""
+    if not tasks.all_day_tasks_done():
+        return False
+    # only require talking to visitors who have day-specific lines
+    day_visitors = [v for v in _visitors if day_cycle.day in v.lines_by_day]
+    return all(v.talked_today for v in day_visitors)
 
 
 def handle_event(event):
@@ -143,7 +183,7 @@ def handle_event(event):
                     import core.game as game
                     game.switch("beach")
                     return
-            if tasks.all_day_tasks_done():
+            if _all_done():
                 if hud.skip_btn_rect().collidepoint(event.pos):
                     import core.game as game
                     game.skip_to_night()
@@ -211,7 +251,7 @@ def _draw_board_door_cutscene(screen):
 def draw_ui(screen):
     dialogue.draw(screen, player_rect=view.rect(_player["x"], _player["y"], _player["w"], _player["h"]))
     hud.draw(screen)
-    if tasks.all_day_tasks_done():
+    if _all_done():
         hud.draw_skip_button(screen)
     if day_cycle.day in constants.BEACH_DAYS:
         _draw_beach_button(screen)

@@ -1,3 +1,4 @@
+import math
 import pygame
 import core.view as view
 import ui.dialogue as dialogue
@@ -6,6 +7,42 @@ import entities.animations as animations
 from typing import Optional, Callable
 
 INTERACT_RANGE = 120  # max world-x distance to trigger interaction
+
+
+def _draw_bounce_arrow(screen, rect):
+    t = pygame.time.get_ticks() / 1000.0
+    bob = int(math.sin(t * 4.0) * view.scale(4))
+    cx = rect.centerx
+    tip_y = rect.top - view.scale(26) + bob
+    half_w = view.scale(6)
+    arrow_h = view.scale(7)
+    col = (255, 230, 80)
+    outline_col = (0, 0, 0)
+    pts = [
+        (cx,            tip_y + arrow_h),
+        (cx - half_w,  tip_y),
+        (cx + half_w,  tip_y),
+    ]
+    o = view.scale(2)
+    outline_pts = [
+        (cx,               tip_y + arrow_h + o),
+        (cx - half_w - o, tip_y - o),
+        (cx + half_w + o, tip_y - o),
+    ]
+    pygame.draw.polygon(screen, outline_col, outline_pts)
+    pygame.draw.polygon(screen, col, pts)
+    # stem outline
+    # stem outline: draw as a polygon, not a filled rect
+    stem_outline_pts = [
+        (cx - view.scale(2) - o, tip_y - 4 - o),
+        (cx + view.scale(2) + o, tip_y - 4 - o),
+        (cx + view.scale(2) + o, tip_y),
+        (cx - view.scale(2) - o, tip_y),
+    ]
+    pygame.draw.polygon(screen, outline_col, stem_outline_pts)
+    pygame.draw.rect(screen, col,
+                    pygame.Rect(cx - view.scale(2), tip_y - 4,
+                                view.scale(4), view.scale(5)))
 
 
 class Interactable:    
@@ -19,6 +56,7 @@ class Interactable:
         self.color = color
         self.used_today = False
         self.hovered = False
+        self.pending = False   # True when this object has an active task/dialogue today
         self.on_use: Optional[Callable[[], None]] = None # F__K PYLANCEEE
         
         self.anim_key = None
@@ -78,3 +116,6 @@ class Interactable:
             for ox, oy in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
                 screen.blit(outline, (lx + ox, ly + oy))
             screen.blit(label, (lx, ly))
+        # bouncing arrow when there's something to do and it hasn't been done yet
+        if self.pending and not self.used_today:
+            _draw_bounce_arrow(screen, rect)
