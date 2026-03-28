@@ -64,6 +64,13 @@ def init():
             anim_path=o.get("anim_path"), anim_scale=o.get("anim_scale", 1.0))
         _interactables.append(obj)
     
+    door_def = constants.LIGHTHOUSE_DOOR
+    door_obj = Interactable(
+        "Lighthouse Door", door_def["world_x"], door_def["y"],
+        door_def["w"], door_def["h"],
+        {"default": ["The lighthouse entrance."]})
+    _interactables.append(door_obj)
+    
     dialogue.show(
         constants.SCRIPTS.get(day_cycle.day, constants.FALLBACK_NIGHT_SCRIPT),
         style="thought", default_speaker="player"
