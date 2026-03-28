@@ -38,7 +38,6 @@ _fading_in      = False
 _fading_out     = False
 _pending_scene  = None
 FADE_SPEED      = 200
-DEBUG_BEACH_KEY = pygame.K_F9
 
 
 def init():
@@ -161,9 +160,6 @@ def handle_event(event):
     if neglect.handle_event(event):
         return
     if _fading_in or _fading_out:
-        return
-    if event.type == pygame.KEYDOWN and event.key == DEBUG_BEACH_KEY:
-        _debug_jump_to_beach()
         return
     if _can_pause() or pause_menu.is_active():
         if pause_menu.handle_event(event, on_quit_to_menu=_on_quit_to_menu):
@@ -320,23 +316,6 @@ def handle_resize():
     animations.rebuild_scaled()
     lighthouse.rebuild_scaled()
     beach_intro.rebuild_scaled()
-
-
-def _debug_jump_to_beach():
-    global scene, _fade_alpha, _fading_in, _fading_out, _pending_scene
-    day_cycle.day      = 5
-    day_cycle._elapsed = 0.0
-    neglect.reset()
-    dialogue.clear()
-    minigame_overlay.reset_all()
-    scene          = "lighthouse"
-    _fade_alpha    = 0
-    _fading_in     = False
-    _fading_out    = False
-    _pending_scene = None
-    day.init()
-    sound.start_day(day_cycle.day)
-    switch("beach")
 
 
 def _apply_missed_task_penalty(reason: str) -> None:
