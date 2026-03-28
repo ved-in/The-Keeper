@@ -11,6 +11,7 @@ import core.view as view
 import systems.tasks as tasks
 import systems.emergency as emergency
 import systems.minigame_overlay as minigame_overlay
+import systems.neglect as neglect
 from entities.interactables import Interactable
 
 # set to True when the player finishes reading, signals game.py to advance the day
@@ -30,7 +31,7 @@ _font = None
 _wait_timer = 0.0  # counts down after outro dialogue finishes before switching to day
 _WAIT_DURATION = 5.0
 
-NIGHT_DURATION = 6.0
+NIGHT_DURATION = constants.DAY_LENGTH
 _night_timer = 0.0
 
 _dim_alpha = 0
@@ -108,6 +109,7 @@ def _on_emergency_complete() -> None:
     if em:
         _deactivate_emergency(em)
     emergency.complete()
+    neglect.relieve(constants.NEGLECT_EMERGENCY_RELIEF)
 
 
 def handle_event(event):
@@ -147,11 +149,16 @@ def update(dt):
                 em = emergency.current()
                 if em and not _get_obj_on_use(em["interactable"]):
                     _activate_emergency(em)
+                if em:
+                    neglect.add(
+                        dt * constants.NEGLECT_NIGHT_EMERGENCY_RATE,
+                        "A night failure spirals out of control. The light goes dark.",
+                    )
+                else:
+                    neglect.relieve(dt * constants.NEGLECT_STABILITY_RELIEF)
                 if not emergency.active():
                     _night_timer += dt
-                    if _night_timer >= NIGHT_DURATION and not emergency.all_done():
-                        pass
-                    if _night_timer >= NIGHT_DURATION:
+                    if _night_timer >= NIGHT_DURATION and emergency.all_done():
                         _start_outro()
                         
             em = emergency.current()
@@ -238,10 +245,13 @@ def draw_ui(screen):
             lines = [
                 "An emergency is active.",
                 "Click the red-highlighted object to start the repair.",
+                "Neglect will surge if you leave the failure unanswered.",
             ]
         else:
             lines = [
                 "Survive until the timer ends.",
                 "If something fails, the red-highlighted object is the urgent target.",
+                "More failures can still hit before dawn, so do not relax too early.",
+                "Quick repairs keep the Neglect meter under control.",
             ]
         hud.draw_help_card(screen, "Night Watch", lines, accent=(210, 82, 82))

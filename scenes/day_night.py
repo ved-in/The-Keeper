@@ -18,6 +18,7 @@ import ui.hud as hud
 import systems.tasks as tasks
 import systems.emergency as emergency
 import systems.minigame_overlay as minigame_overlay
+import systems.neglect as neglect
 import constants
 
 from entities.interactables import Interactable
@@ -206,6 +207,7 @@ def _init_day10_emergencies():
 def _notify_task_done(idx: int):
     global _tasks_done_time
     tasks.complete_day_task(idx)
+    neglect.relieve(constants.NEGLECT_TASK_RELIEF)
     if tasks.all_day_tasks_done() and _tasks_done_time is None:
         _tasks_done_time = _scene_t
         day_finish = constants.DAY_FINISH_SCRIPTS.get(day_cycle.day, [])
@@ -261,6 +263,7 @@ def _on_emergency_complete():
                 _restore_task_on_use(obj)
                 break
     emergency.complete()
+    neglect.relieve(constants.NEGLECT_EMERGENCY_RELIEF)
     if day_cycle.day == 10:
         _trigger_shake(1.5)
 
@@ -268,6 +271,7 @@ def _on_emergency_complete():
 def _on_day10_emergency_complete(em: dict):
     global _day10_resolved
     _day10_resolved += 1
+    neglect.relieve(constants.NEGLECT_EMERGENCY_RELIEF)
     for obj in _interactables:
         if obj.name == em["interactable"]:
             _restore_task_on_use(obj)
@@ -380,6 +384,26 @@ def update(dt):
     dialogue.update(dt)
     
     if not dialogue.active():
+        pending_count, total_pressure_tasks = _pending_pressure_tasks()
+        emergency_count = max(len(_emergency_interactables), 1 if emergency.current() else 0)
+        pressure = 0.55 + 0.65 * min(_scene_t / _SCENE_DURATION, 1.0)
+        rate = 0.0
+        if pending_count:
+            rate += (
+                constants.NEGLECT_DAY_NIGHT_RATE
+                * (pending_count / max(total_pressure_tasks, 1))
+                * pressure
+            )
+        if emergency_count:
+            rate += constants.NEGLECT_DAY_NIGHT_EMERGENCY_RATE * emergency_count
+        if rate > 0.0:
+            neglect.add(
+                dt * rate,
+                "The shift unravels around you. The light cannot hold.",
+            )
+        else:
+            neglect.relieve(dt * constants.NEGLECT_STABILITY_RELIEF)
+
         player.update(_player, dt)
         mouse_pos = pygame.mouse.get_pos()
         for obj in _interactables + _visitors:
@@ -545,6 +569,7 @@ def draw_ui(screen):
                 "Gold markers are regular chores.",
                 "Red markers are urgent failures that interrupt the shift.",
                 "The scene timer pauses while emergencies are active.",
+                "If either stack up, the Neglect meter keeps climbing.",
             ],
             accent=(196, 110, 88),
         )
@@ -559,3 +584,15 @@ def _pending_task_targets() -> set[str]:
         elif task.get("task_type") == "board_door" and not tasks.day_task_done(idx):
             pending.add("Lighthouse Door")
     return pending
+
+
+def _pending_pressure_tasks() -> tuple[int, int]:
+    pending = 0
+    total = 0
+    for i, task in enumerate(tasks.get_day_tasks(day_cycle.day)):
+        if task.get("task_type") == "survive":
+            continue
+        total += 1
+        if not tasks.day_task_done(task.get("idx", i)):
+            pending += 1
+    return pending, total

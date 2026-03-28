@@ -13,6 +13,7 @@ DAY_START_SCRIPTS = {
         "Most of the work is done outside. I do not need to enter the lighthouse interior.",
         "I can move with A and D, or click where I want to walk.",
         "The highlighted machinery marks what still needs attention.",
+        "If I let chores pile up, the Neglect meter will start to climb.",
     ],
 }
 
@@ -29,6 +30,7 @@ NIGHT_TUTORIAL_SCRIPTS = {
         "Night comes quickly now.",
         "If something fails, the red alert will point me to the problem.",
         "I only need to keep the lighthouse operating until dawn.",
+        "If I ignore a failure too long, the Neglect meter will surge.",
     ],
 }
 
@@ -36,6 +38,7 @@ DAY_NIGHT_TUTORIAL_SCRIPTS = {
     6: [
         "There is no clean break between day and night anymore.",
         "The chores keep coming, and emergencies can interrupt them at any time.",
+        "If the work stacks up, the Neglect meter will keep rising.",
     ],
 }
 

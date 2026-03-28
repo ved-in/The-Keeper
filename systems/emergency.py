@@ -9,12 +9,12 @@ EMERGENCY_POOL = [
 
 # delays shrink as days progress
 # emergencies get more frequent
-_MIN_DELAY_BY_DAY = {6: 18, 7: 14, 8: 10, 9: 7,  10: 0}
-_MAX_DELAY_BY_DAY = {6: 30, 7: 22, 8: 16, 9: 12, 10: 0}
+_MIN_DELAY_BY_DAY = {1: 10, 2: 9, 3: 8, 4: 7, 5: 6, 6: 18, 7: 14, 8: 10, 9: 7,  10: 0}
+_MAX_DELAY_BY_DAY = {1: 20, 2: 17, 3: 14, 4: 11, 5: 9, 6: 30, 7: 22, 8: 16, 9: 12, 10: 0}
 
 # night number: number of emergency
 _EMERGENCIES_PER_SCENE = {
-    1: 1, 2: 1, 3: 1, 4: 2, 5: 2,
+    1: 2, 2: 2, 3: 3, 4: 3, 5: 4,
     6: 2, 7: 3, 8: 3, 9: 4, 10: 69420,  # Day 10: fire all, tracked differently
 }
 
@@ -80,6 +80,10 @@ def _schedule_next() -> None:
     _elapsed = 0.0
     min_d = _MIN_DELAY_BY_DAY.get(_current_day, 8)
     max_d = _MAX_DELAY_BY_DAY.get(_current_day, 18)
+    # Later failures in the same night come in a bit quicker so the shift ramps up.
+    pace_scale = max(0.55, 1.0 - (_resolved_count * 0.16))
+    min_d *= pace_scale
+    max_d *= pace_scale
     _next_trigger = random.uniform(min_d, max_d)
 
 

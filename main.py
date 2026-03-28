@@ -50,6 +50,7 @@ def run_frame(clock, screen, mode_index):
             pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN,
             pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s,
             pygame.K_F11,
+            pygame.K_F9,
         }
         if event.type == pygame.KEYDOWN and event.key not in _MOVEMENT_KEYS:
             sound.play_button()
