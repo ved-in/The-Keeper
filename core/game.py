@@ -3,6 +3,7 @@ import scenes.lighthouse as lighthouse
 import scenes.day as day
 import scenes.day_night as day_night
 import scenes.nightfall as nightfall
+import scenes.start_screen as start_screen
 import scenes.opening as opening
 import scenes.beach_intro as beach_intro
 import scenes.beach as beach
@@ -15,6 +16,7 @@ import pygame
 
 # maps scene name strings to their modules so we can switch between them easily
 SCENES = {
+    "start_screen": start_screen,
     "opening":     opening,
     "beach_intro": beach_intro,
     "lighthouse":  day,
@@ -23,7 +25,7 @@ SCENES = {
     "beach":       beach,
 }
 
-RESET_ON_ENTER = {"opening", "beach_intro", "nightfall", "lighthouse", "day_night", "beach"}
+RESET_ON_ENTER = {"start_screen", "opening", "beach_intro", "nightfall", "lighthouse", "day_night", "beach"}
 
 scene = "opening"
 
@@ -59,10 +61,10 @@ def init():
     minigame_overlay.register("minigame_lube",     lubricate_engine.instance)
     minigame_overlay.register("minigame_refuel",   refuel_generator.instance)
     minigame_overlay.reset_all()
-    # switch directly for no fade
+    # start on the title/start screen
     global scene
-    scene = "opening"
-    opening.init()
+    scene = "start_screen"
+    start_screen.init()
 
 
 def switch(name):
@@ -86,8 +88,8 @@ def restart():
     day_cycle.init()
     tasks.reset_for_day()
     minigame_overlay.reset_all()
-    scene = "opening"
-    opening.init()
+    scene = "start_screen"
+    start_screen.init()
 
 
 def _update_fade(dt):
@@ -127,6 +129,13 @@ def handle_event(event):
 def update(dt):
     _update_fade(dt)
     if _fading_in or _pending_scene:
+        return
+        
+    # start screen waits for any key before the story begins
+    if scene == "start_screen":
+        start_screen.update(dt)
+        if start_screen.done:
+            switch("opening")
         return
         
     # opening is handled separately because it does not use the day cycle
@@ -207,8 +216,8 @@ def draw(screen):
     # draws red overlay
     apply_red_overlay(screen, day_cycle.day)
     
-    # draws ui elements IFFF scene != "opening"
-    if scene != "opening":
+    # draws ui elements IFFF scene != "opening" and != "start_screen"
+    if scene not in ("opening", "start_screen"):
         _current_scene().draw_ui(screen)
     
     # minigame panel draws on top of everything, including UI
