@@ -159,6 +159,18 @@ def draw_ui(screen: pygame.Surface) -> None:
     hud.draw(screen)
     _draw_back_button(screen)
     dialogue.draw(screen)
+    if not dialogue.active() and not all(_crates_placed):
+        if not _carrying:
+            lines = [
+                "Click the crate pile to pick up a sensor.",
+                "Then place it on one of the marked X spots.",
+            ]
+        else:
+            lines = [
+                "You are carrying a sensor.",
+                "Click one of the marked X spots to place it.",
+            ]
+        hud.draw_help_card(screen, "Beach Task", lines, accent=(120, 164, 214))
 
 
 def _draw_back_button(screen: pygame.Surface) -> None:

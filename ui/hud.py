@@ -33,9 +33,10 @@ _COL_SURVIVE = (200, 60,  60)
 def draw(screen):
     # show the current day number only (no time-of-day progress bar)
     _draw_label(screen, f"Day {day_cycle.day}", (200, 195, 215))
-    # use tasks._tasks_day (the day the done-list was built for) to ensure they match
-    task_list = tasks.get_day_tasks(tasks._tasks_day)
-    done_list = [tasks.day_task_done(i) for i in range(len(task_list))]
+    _draw_progress_bar(screen)
+    task_day = getattr(tasks, "_tasks_day", day_cycle.day)
+    task_list = tasks.get_day_tasks(task_day)
+    done_list = [tasks.day_task_done(task.get("idx", i)) for i, task in enumerate(task_list)]
     _draw_task_panel(screen, task_list, done_list)
 
 
@@ -43,8 +44,9 @@ def draw_day_night(screen, active_emergency, scene_t=0.0, scene_duration=120.0):
     _draw_label(screen, f"Day {day_cycle.day}?", (180, 140, 140))
     
     _draw_scene_progress_bar(screen, scene_t, scene_duration, paused=active_emergency is not None)
-    task_list = tasks.get_day_tasks(day_cycle.day)
-    done_list = [tasks.day_task_done(i) for i in range(len(task_list))]
+    task_day = getattr(tasks, "_tasks_day", day_cycle.day)
+    task_list = tasks.get_day_tasks(task_day)
+    done_list = [tasks.day_task_done(task.get("idx", i)) for i, task in enumerate(task_list)]
     _draw_task_panel(screen, task_list, done_list)
     if active_emergency:
         _draw_emergency_strip(screen, active_emergency)
@@ -64,6 +66,64 @@ def draw_skip_button(screen):
     font = view.font(9, constants.FONT_PATH)
     lbl = font.render("Go to Night →", True, (180, 240, 200))
     screen.blit(lbl, (r.centerx - lbl.get_width() // 2, r.centery - lbl.get_height() // 2))
+
+
+def draw_help_card(screen, title: str, lines: list[str], accent=(172, 152, 108)):
+    if not lines:
+        return
+
+    cr = view.content_rect()
+    font_title = view.font(10, constants.FONT_PATH)
+    font_body = view.font(9, constants.FONT_PATH)
+
+    panel_w = min(view.scale(260), cr.width - view.scale(32))
+    body_w = panel_w - view.scale(22)
+    wrapped: list[str] = []
+    for line in lines:
+        wrapped.extend(_wrap_text(line, font_body, body_w))
+
+    line_gap = view.scale(3)
+    panel_h = (
+        view.scale(22)
+        + font_title.get_height()
+        + max(0, len(wrapped) - 1) * line_gap
+        + len(wrapped) * font_body.get_height()
+        + view.scale(14)
+    )
+
+    panel = pygame.Rect(
+        cr.right - panel_w - view.scale(16),
+        cr.top + view.scale(16),
+        panel_w,
+        panel_h,
+    )
+
+    surf = pygame.Surface((panel.width, panel.height), pygame.SRCALPHA)
+    pygame.draw.rect(surf, (18, 18, 28, 220), surf.get_rect(), border_radius=view.scale(6))
+    pygame.draw.rect(
+        surf,
+        (70, 66, 90, 255),
+        surf.get_rect(),
+        width=max(1, view.scale(1)),
+        border_radius=view.scale(6),
+    )
+    pygame.draw.rect(
+        surf,
+        accent,
+        pygame.Rect(0, 0, surf.get_width(), view.scale(4)),
+        border_top_left_radius=view.scale(6),
+        border_top_right_radius=view.scale(6),
+    )
+    screen.blit(surf, panel.topleft)
+
+    title_surf = font_title.render(title, True, (235, 228, 210))
+    screen.blit(title_surf, (panel.left + view.scale(10), panel.top + view.scale(8)))
+
+    y = panel.top + view.scale(22)
+    for line in wrapped:
+        body = font_body.render(line, True, (196, 191, 210))
+        screen.blit(body, (panel.left + view.scale(10), y))
+        y += body.get_height() + line_gap
 
 
 def skip_btn_rect() -> pygame.Rect:
@@ -288,3 +348,18 @@ def _task_label(task: dict) -> str:
         return task["label"]
     key = task.get("interactable", "")
     return _DISPLAY_NAMES.get(key, key or "Unknown Task")
+
+
+def _wrap_text(text: str, font, max_w: int) -> list[str]:
+    words = text.split()
+    if not words:
+        return [""]
+
+    lines = [words[0]]
+    for word in words[1:]:
+        trial = f"{lines[-1]} {word}"
+        if font.size(trial)[0] <= max_w:
+            lines[-1] = trial
+        else:
+            lines.append(word)
+    return lines

@@ -5,10 +5,14 @@ import constants
 import core.view as view
 import entities.animations as animations
 
+import core.sound as sound
+
 # how far the world has scrolled horizontally
 # negative means scrolled right, positive means scrolled left
 _world_offset = 0.0
 _pointer_img = None
+_pointer_raw = None
+_pointer_scale = None
 _player = None  # current player dict; set by make_player() for cross-module access
 
 
@@ -94,19 +98,30 @@ def update(p, dt):
     if old_offset == _world_offset and direction != 0:
         p["target_world_x"] = None
 
+    # footstep sounds — only play while actually scrolling the world
+    sound.update_footsteps(dt, bool(direction) and old_offset != _world_offset)
+
 
 def draw(screen, p):
-    global _pointer_img
+    global _pointer_img, _pointer_raw, _pointer_scale
 
     if p.get("target_world_x") is not None:
-        if _pointer_img is None:
+        scale_now = view.current_scale() / view.reference_scale()
+        if _pointer_raw is None:
             path = os.path.join("assets", "sprites", "pointer.png")
             try:
-                _pointer_img = pygame.image.load(path).convert_alpha()
+                _pointer_raw = pygame.image.load(path).convert_alpha()
             except FileNotFoundError:
                 # Fallback placeholder if asset missing: 10x10 red square for debugging.
-                _pointer_img = pygame.Surface((10, 10))
-                _pointer_img.fill((255, 0, 0))
+                _pointer_raw = pygame.Surface((10, 10), pygame.SRCALPHA)
+                _pointer_raw.fill((255, 0, 0))
+        if _pointer_img is None or _pointer_scale != scale_now:
+            w, h = _pointer_raw.get_size()
+            _pointer_img = pygame.transform.scale(
+                _pointer_raw,
+                (max(1, int(round(w * scale_now))), max(1, int(round(h * scale_now)))),
+            )
+            _pointer_scale = scale_now
 
         # Convert target world position to screen position for rendering.
         pointer_screen_x = p["target_world_x"] + _world_offset

@@ -7,6 +7,15 @@ OPENING_LINES = [
     "That is enough...",
 ]
 
+DAY_START_SCRIPTS = {
+    1: [
+        "First things first.",
+        "Most of the work is done outside. I do not need to enter the lighthouse interior.",
+        "I can move with A and D, or click where I want to walk.",
+        "The highlighted machinery marks what still needs attention.",
+    ],
+}
+
 # Player thoughts shown at the start of each night
 SCRIPTS = {
     2:  ["Sun went down ten minutes early today.", "The shadows look... stretched."],
@@ -14,6 +23,21 @@ SCRIPTS = {
     6:  ["Everything I touch is covered in this red dust.", "The sun didn't even rise until noon today.", "I can't see the dock without the lighthouse beam hitting it."],
 }
 FALLBACK_NIGHT_SCRIPT = ["The day lasted shorter yet again..."]
+
+NIGHT_TUTORIAL_SCRIPTS = {
+    1: [
+        "Night comes quickly now.",
+        "If something fails, the red alert will point me to the problem.",
+        "I only need to keep the lighthouse operating until dawn.",
+    ],
+}
+
+DAY_NIGHT_TUTORIAL_SCRIPTS = {
+    6: [
+        "There is no clean break between day and night anymore.",
+        "The chores keep coming, and emergencies can interrupt them at any time.",
+    ],
+}
 
 # Shown after each night
 FINISH_SCRIPTS = {

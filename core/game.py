@@ -1,4 +1,5 @@
 import core.day_cycle as day_cycle
+import core.sound as sound
 import scenes.lighthouse as lighthouse
 import scenes.day as day
 import scenes.day_night as day_night
@@ -10,6 +11,7 @@ import scenes.beach as beach
 import entities.animations as animations
 import systems.tasks as tasks
 import systems.minigame_overlay as minigame_overlay
+import ui.dialogue as dialogue
 import constants
 
 import pygame
@@ -42,6 +44,7 @@ FADE_SPEED = 200
 
 def init():
     day_cycle.init()
+    sound.init()
     lighthouse.init()
     day.init()
     # load all sprite sheets before the game loop starts
@@ -89,6 +92,7 @@ def restart():
     _fading_in     = False
     _fading_out    = False
     _pending_scene = None
+    sound.stop_all()
     day_cycle.init()
     tasks.reset_for_day()
     minigame_overlay.reset_all()
@@ -158,6 +162,7 @@ def update(dt):
         animations.update(dt)
         beach_intro.update(dt)
         if beach_intro.done:
+            sound.start_day(day_cycle.day)
             switch("lighthouse")
         return
     
@@ -173,7 +178,8 @@ def update(dt):
         
     # only tick the day clock when in day BUT not fading in or out
     if scene == "lighthouse" and not _fading_in and not _fading_out:
-        day_cycle.update(dt)
+        if not dialogue.active():
+            day_cycle.update(dt)
         animations.update(dt)
         _current_scene().update(dt)
         if day_cycle.is_night():
@@ -204,8 +210,10 @@ def _advance_day():
         obj.reset_daily()
         obj.on_use = None
     if day_cycle.day >= constants.DAY_NIGHT_START:
+        sound.start_day(day_cycle.day)
         switch("day_night")
     else:
+        sound.start_day(day_cycle.day)
         switch("lighthouse")
 
 
@@ -256,3 +264,9 @@ def apply_red_overlay(screen, day):
         r = int(max_r * t)
         pygame.draw.circle(overlay, (180, 0, 0, ring_alpha), (cx, cy), r)
     screen.blit(overlay, (0, 0))
+
+
+def handle_resize():
+    animations.rebuild_scaled()
+    lighthouse.rebuild_scaled()
+    beach_intro.rebuild_scaled()
