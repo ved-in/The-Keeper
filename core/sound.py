@@ -73,10 +73,10 @@ def init():
     _set_vol("waves",         0.25)
     _set_vol("wind",          0.0)   # starts silent
     _set_vol("thunderstorm",  0.0)   # starts silent
-    _set_vol("birds",         0.35)
+    _set_vol("birds",         0.65)
     _set_vol("crickets",      0.40)
-    _set_vol("button",        0.55)
-    _set_vol("connectWire",   0.6)
+    _set_vol("button",        0.35)
+    _set_vol("connectWire",   0.5)
     _set_vol("footstepLeft",  0.5)
     _set_vol("footstepRight", 0.5)
 
@@ -147,7 +147,8 @@ def start_night(day: int):
 
 
 def stop_all():
-    for ch in (CH_AMBIENT_1, CH_AMBIENT_2, CH_AMBIENT_3, CH_RAIN):
+    # Stop every channel — call on scene transitions to prevent audio bleed
+    for ch in range(8):
         pygame.mixer.Channel(ch).stop()
 
 
