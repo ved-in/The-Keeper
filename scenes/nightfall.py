@@ -1,6 +1,7 @@
 import math
 import pygame
 import core.day_cycle as day_cycle
+import core.sound as sound
 import entities.player as player
 import scenes.lighthouse as lighthouse
 import constants
@@ -78,6 +79,8 @@ def init():
     if not intro_lines:
         intro_lines = list(constants.FALLBACK_NIGHT_SCRIPT)
     dialogue.show(intro_lines, style="thought", default_speaker="player")
+
+    sound.start_night(day_cycle.day)
 
 
 def _activate_emergency(em: dict) -> None:

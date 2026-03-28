@@ -5,6 +5,8 @@ from entities.interactables import Interactable, _draw_bounce_arrow
 import entities.animations as animations
 import entities.player as player
 
+import core.sound as sound
+
 INTERACT_RANGE = 120  # max world-x distance to trigger dialogue
 
 class Visitor(Interactable):
@@ -36,6 +38,7 @@ class Visitor(Interactable):
                 player_world_x = p["x"] - player._world_offset
                 if abs(player_world_x - self.world_x) > INTERACT_RANGE:
                     return False
+            sound.play_button()
             lines = self.lines_by_day.get(day, self.lines_by_day.get("default", ["..."]))
             dialogue.show(lines, style="thought", reveal_speed=40, npc_rect=self.screen_rect(world_offset))
             self.talked_today = True

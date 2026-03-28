@@ -1,4 +1,5 @@
 import core.day_cycle as day_cycle
+import core.sound as sound
 import scenes.lighthouse as lighthouse
 import scenes.day as day
 import scenes.day_night as day_night
@@ -43,6 +44,7 @@ FADE_SPEED = 200
 
 def init():
     day_cycle.init()
+    sound.init()
     lighthouse.init()
     day.init()
     # load all sprite sheets before the game loop starts
@@ -90,6 +92,7 @@ def restart():
     _fading_in     = False
     _fading_out    = False
     _pending_scene = None
+    sound.stop_all()
     day_cycle.init()
     tasks.reset_for_day()
     minigame_overlay.reset_all()
@@ -159,6 +162,7 @@ def update(dt):
         animations.update(dt)
         beach_intro.update(dt)
         if beach_intro.done:
+            sound.start_day(day_cycle.day)
             switch("lighthouse")
         return
     
@@ -206,8 +210,10 @@ def _advance_day():
         obj.reset_daily()
         obj.on_use = None
     if day_cycle.day >= constants.DAY_NIGHT_START:
+        sound.start_day(day_cycle.day)
         switch("day_night")
     else:
+        sound.start_day(day_cycle.day)
         switch("lighthouse")
 
 

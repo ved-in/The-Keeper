@@ -5,6 +5,8 @@ import constants
 import core.view as view
 import entities.animations as animations
 
+import core.sound as sound
+
 # how far the world has scrolled horizontally
 # negative means scrolled right, positive means scrolled left
 _world_offset = 0.0
@@ -95,6 +97,9 @@ def update(p, dt):
 
     if old_offset == _world_offset and direction != 0:
         p["target_world_x"] = None
+
+    # footstep sounds — only play while actually scrolling the world
+    sound.update_footsteps(dt, bool(direction) and old_offset != _world_offset)
 
 
 def draw(screen, p):

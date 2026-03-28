@@ -10,6 +10,8 @@ import random
 import pygame
 import core.view as view
 from systems.minigame import Minigame
+import core.sound as sound
+
 
 _NUM_VALVES = 5
 
@@ -43,6 +45,7 @@ class PressureValves(Minigame):
                     if self._order[self._next_idx] == i:
                         self._released[i] = True
                         self._next_idx += 1
+                        sound.play_vent()
                     else:
                         self._released    = [False] * _NUM_VALVES
                         self._next_idx    = 0

@@ -4,6 +4,8 @@ import core.view as view
 import ui.dialogue as dialogue
 import entities.animations as animations
 
+import core.sound as sound
+
 from typing import Optional, Callable
 
 
@@ -83,6 +85,7 @@ class Interactable:
         if not self.is_on_screen(world_offset):
             return False
         if self.screen_rect(world_offset).collidepoint(pos):
+            sound.play_button()
             if hasattr(self, "on_use") and self.on_use:
                 self.on_use()
                 return True
