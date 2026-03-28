@@ -5,6 +5,8 @@ import entities.animations as animations
 
 from typing import Optional, Callable
 
+INTERACT_RANGE = 120  # max world-x distance to trigger interaction
+
 
 class Interactable:    
     def __init__(self, name, world_x, y, w, h, lines_by_day, color=(140, 130, 120), anim_path=None, anim_scale=1.0):
@@ -40,6 +42,12 @@ class Interactable:
         if not self.is_on_screen(world_offset):
             return False
         if self.screen_rect(world_offset).collidepoint(pos):
+            import entities.player as player
+            p = player._player
+            if p is not None:
+                player_world_x = p["x"] - player._world_offset
+                if abs(player_world_x - self.world_x) > INTERACT_RANGE:
+                    return False
             if hasattr(self, "on_use") and self.on_use:
                 self.on_use()
                 return True
