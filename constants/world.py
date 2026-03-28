@@ -76,3 +76,10 @@ INTERACTABLES = [
         },
     },
 ]
+
+LIGHTHOUSE_DOOR = {
+    "world_x": 450,
+    "y":        360,
+    "w":        28,
+    "h":        44,
+}

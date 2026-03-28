@@ -1,5 +1,5 @@
 """
-Beach Intro scene — plays once before Day 1.
+Beach Intro scene: plays once before Day 1.
 
 The player can walk freely across the beach (screen-bounded, no world scroll).
 The fisherman stands on the dock as a Visitor. Click him to trigger day 1
