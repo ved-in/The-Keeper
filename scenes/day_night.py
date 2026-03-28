@@ -167,8 +167,13 @@ def init():
                 v.get("y_offset", 0), v["lines"],
                 anim_folder=v.get("anim_folder"), anim_scale=v.get("anim_scale", 1.0)))
     
-    script = constants.SCRIPTS.get(day, constants.FALLBACK_NIGHT_SCRIPT)
-    dialogue.show(script, style="thought", default_speaker="player")
+    intro_lines = list(constants.DAY_NIGHT_TUTORIAL_SCRIPTS.get(day, []))
+    script = constants.SCRIPTS.get(day)
+    if script:
+        intro_lines.extend(script)
+    if not intro_lines:
+        intro_lines = list(constants.FALLBACK_NIGHT_SCRIPT)
+    dialogue.show(intro_lines, style="thought", default_speaker="player")
     
     # Day 10: fire all emergencies immediately
     if day == 10:
@@ -365,7 +370,7 @@ def update(dt):
     em_active = len(_emergency_interactables) > 0 or emergency.active()
     
     # scene timer pauses during emergencies
-    if not em_active:
+    if not em_active and not dialogue.active():
         _scene_t += dt
     
     # continuous shake on Day 10 while emergencies active
@@ -445,8 +450,17 @@ def draw(screen):
         core_radius=int(40 * max(0.05, _beacon_alpha)),
     )
     
+    pending = _pending_task_targets()
+    emergency_targets = set(_emergency_interactables)
     for obj in _interactables + _visitors:
-        obj.draw(world_surf, player._world_offset, _font)
+        is_emergency = obj.name in emergency_targets
+        obj.draw(
+            world_surf,
+            player._world_offset,
+            _font,
+            highlight=is_emergency or obj.name in pending,
+            highlight_color=(210, 82, 82) if is_emergency else (172, 152, 108),
+        )
     player.draw(world_surf, _player)
     
     screen.blit(world_surf, (ox, oy))
@@ -523,3 +537,25 @@ def draw_ui(screen):
     dialogue.draw(screen, player_rect=view.rect(
         _player["x"], _player["y"], _player["w"], _player["h"]))
     hud.draw_day_night(screen, emergency.current(), _scene_t, _SCENE_DURATION)
+    if day_cycle.day == 6 and not dialogue.active() and _scene_t < 18.0:
+        hud.draw_help_card(
+            screen,
+            "Changing Shift",
+            [
+                "Gold markers are regular chores.",
+                "Red markers are urgent failures that interrupt the shift.",
+                "The scene timer pauses while emergencies are active.",
+            ],
+            accent=(196, 110, 88),
+        )
+
+
+def _pending_task_targets() -> set[str]:
+    pending = set()
+    for task in tasks.get_day_tasks(day_cycle.day):
+        idx = task.get("idx", 0)
+        if task.get("interactable") and not tasks.day_task_done(idx):
+            pending.add(task["interactable"])
+        elif task.get("task_type") == "board_door" and not tasks.day_task_done(idx):
+            pending.add("Lighthouse Door")
+    return pending

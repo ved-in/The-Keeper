@@ -54,6 +54,7 @@ class Interactable:
         self.color = color
         self.used_today = False
         self.hovered = False
+        self.pending = False
         self.pending = False   # True when this object has an active task/dialogue today
         self.on_use: Optional[Callable[[], None]] = None # F__K PYLANCEEE
         
@@ -94,8 +95,10 @@ class Interactable:
     def update(self, mouse_pos, world_offset):
         self.hovered = self.screen_rect(world_offset).collidepoint(mouse_pos)
         
-    def draw(self, screen, world_offset, font=None):
+    def draw(self, screen, world_offset, font=None, highlight=False, highlight_color=(172, 152, 108)):
         rect = self.screen_rect(world_offset)
+        if highlight and self.is_on_screen(world_offset):
+            _draw_marker(screen, rect, highlight_color)
         if self.anim_key:
             frame = animations.get_frame(self.anim_key, "idle")
             if frame:
@@ -114,6 +117,62 @@ class Interactable:
             for ox, oy in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
                 screen.blit(outline, (lx + ox, ly + oy))
             screen.blit(label, (lx, ly))
-        # bouncing arrow when there's something to do and it hasn't been done yet
-        if self.pending and not self.used_today:
+        if self.pending and not highlight and not self.used_today and self.is_on_screen(world_offset):
             _draw_bounce_arrow(screen, rect)
+
+
+def _draw_marker(screen, rect, color):
+    pulse = 0.5 + (math.sin(pygame.time.get_ticks() * 0.006) * 0.5)
+
+    halo_w = rect.width + view.scale(16)
+    halo_h = rect.height + view.scale(12)
+    halo = pygame.Surface((halo_w, halo_h), pygame.SRCALPHA)
+    pygame.draw.ellipse(
+        halo,
+        (*color, int(28 + 24 * pulse)),
+        halo.get_rect(),
+        width=max(1, view.scale(2)),
+    )
+    screen.blit(halo, (rect.centerx - halo_w // 2, rect.centery - halo_h // 2))
+
+    size = view.scale(6)
+    center_x = rect.centerx
+    center_y = rect.top - view.scale(10) - int(pulse * view.scale(4))
+    shadow_points = [
+        (center_x, center_y - size + view.scale(2)),
+        (center_x + size, center_y + view.scale(2)),
+        (center_x, center_y + size + view.scale(2)),
+        (center_x - size, center_y + view.scale(2)),
+    ]
+    points = [
+        (center_x, center_y - size),
+        (center_x + size, center_y),
+        (center_x, center_y + size),
+        (center_x - size, center_y),
+    ]
+
+    pygame.draw.polygon(screen, (20, 16, 16), shadow_points)
+    pygame.draw.polygon(screen, color, points)
+    pygame.draw.polygon(screen, (245, 236, 214), points, width=max(1, view.scale(1)))
+
+
+def _draw_bounce_arrow(screen, rect):
+    pulse = 0.5 + (math.sin(pygame.time.get_ticks() * 0.006) * 0.5)
+    size = view.scale(6)
+    center_x = rect.centerx
+    center_y = rect.top - view.scale(18) - int(pulse * view.scale(5))
+
+    shadow_points = [
+        (center_x, center_y + size + view.scale(2)),
+        (center_x + size, center_y - size + view.scale(2)),
+        (center_x - size, center_y - size + view.scale(2)),
+    ]
+    points = [
+        (center_x, center_y + size),
+        (center_x + size, center_y - size),
+        (center_x - size, center_y - size),
+    ]
+
+    pygame.draw.polygon(screen, (20, 16, 16), shadow_points)
+    pygame.draw.polygon(screen, (214, 194, 122), points)
+    pygame.draw.polygon(screen, (245, 236, 214), points, width=max(1, view.scale(1)))
