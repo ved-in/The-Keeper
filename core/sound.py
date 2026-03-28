@@ -73,8 +73,8 @@ def init():
     _set_vol("waves",         0.25)
     _set_vol("wind",          0.0)   # starts silent
     _set_vol("thunderstorm",  0.0)   # starts silent
-    _set_vol("birds",         0.65)
-    _set_vol("crickets",      0.40)
+    _set_vol("birds",         0.25)
+    _set_vol("crickets",      0.30)
     _set_vol("button",        0.35)
     _set_vol("connectWire",   0.5)
     _set_vol("footstepLeft",  0.5)

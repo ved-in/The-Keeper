@@ -1,5 +1,6 @@
 import core.day_cycle as day_cycle
 import core.sound as sound
+import core.save as save
 import scenes.lighthouse as lighthouse
 import scenes.day as day
 import scenes.day_night as day_night
@@ -13,46 +14,42 @@ import systems.tasks as tasks
 import systems.minigame_overlay as minigame_overlay
 import systems.neglect as neglect
 import ui.dialogue as dialogue
+import ui.pause_menu as pause_menu
 import constants
-
 import pygame
 
-# maps scene name strings to their modules so we can switch between them easily
 SCENES = {
     "start_screen": start_screen,
-    "opening":     opening,
-    "beach_intro": beach_intro,
-    "lighthouse":  day,
-    "day_night":   day_night,
-    "nightfall":   nightfall,
-    "beach":       beach,
+    "opening":      opening,
+    "beach_intro":  beach_intro,
+    "lighthouse":   day,
+    "day_night":    day_night,
+    "nightfall":    nightfall,
+    "beach":        beach,
 }
 
-RESET_ON_ENTER = {"start_screen", "opening", "beach_intro", "nightfall", "lighthouse", "day_night", "beach"}
-
-# Scenes that are just side-trips from the day scene, returning to lighthouse
-# from these should NOT re-init the day (which would reset task progress).
+RESET_ON_ENTER    = {"start_screen", "opening", "beach_intro", "nightfall", "lighthouse", "day_night", "beach"}
 _BEACH_SIDE_TRIPS = {"beach"}
+_NO_PAUSE_SCENES  = {"start_screen", "opening", "beach_intro"}
 
-scene = "opening"
-
-_fade_alpha = 0
-_fading_in = False
-_fading_out = False
-_pending_scene = None
-FADE_SPEED = 200
+scene           = "opening"
+_fade_alpha     = 0
+_fading_in      = False
+_fading_out     = False
+_pending_scene  = None
+FADE_SPEED      = 200
 DEBUG_BEACH_KEY = pygame.K_F9
 
 
 def init():
     day_cycle.init()
     sound.init()
+    pause_menu.init()
     neglect.reset()
     lighthouse.init()
     day.init()
-    # load all sprite sheets before the game loop starts
     animations.load_all()
-    
+
     import minigames.clean_lens        as clean_lens
     import minigames.fix_wires         as fix_wires
     import minigames.flip_breakers     as flip_breakers
@@ -70,8 +67,9 @@ def init():
     minigame_overlay.register("minigame_pressure", log_pressure.instance)
     minigame_overlay.register("minigame_lube",     lubricate_engine.instance)
     minigame_overlay.register("minigame_refuel",   refuel_generator.instance)
+
     minigame_overlay.reset_all()
-    # start on the title/start screen
+
     global scene
     scene = "start_screen"
     start_screen.init()
@@ -80,7 +78,7 @@ def init():
 def switch(name):
     global _pending_scene, _fading_in
     _pending_scene = name
-    _fading_in = True  # start fading to black
+    _fading_in = True
 
 
 def skip_to_night():
@@ -89,12 +87,33 @@ def skip_to_night():
     _fading_in = True
 
 
-def restart():
+def _do_save():
+    save.save(
+        day              = day_cycle.day,
+        elapsed          = day_cycle._elapsed,
+        scene            = scene,
+        day_tasks_done   = tasks._day_tasks_done,
+        night_tasks_done = tasks._night_tasks_done,
+    )
+
+
+def _do_load(data: dict):
+    day_cycle.day           = data["day"]
+    day_cycle._elapsed      = data["elapsed"]
+    tasks._day_tasks_done   = data["day_tasks_done"]
+    tasks._night_tasks_done = data["night_tasks_done"]
+    tasks._tasks_day        = data["day"]
+
+
+def restart(new_game: bool = False):
     global scene, _fade_alpha, _fading_in, _fading_out, _pending_scene
+    if new_game:
+        save.delete()
     _fade_alpha    = 0
     _fading_in     = False
     _fading_out    = False
     _pending_scene = None
+    pause_menu.close()
     sound.stop_all()
     day_cycle.init()
     neglect.reset()
@@ -112,12 +131,10 @@ def _update_fade(dt):
             _fading_in  = False
             _fading_out = True
             if _pending_scene is not None:
-                prev_scene  = scene
-                scene = _pending_scene
+                prev_scene     = scene
+                scene          = _pending_scene
                 _pending_scene = None
                 if scene in RESET_ON_ENTER:
-                    # returning from beach fu**s shit up
-                    # tasks get reset n all, so we need this ;(
                     returning_from_beach = (scene == "lighthouse" and
                                             prev_scene in _BEACH_SIDE_TRIPS)
                     if not returning_from_beach:
@@ -134,19 +151,31 @@ def _current_scene():
     return SCENES[scene]
 
 
+def _can_pause() -> bool:
+    return (scene not in _NO_PAUSE_SCENES and
+            not _fading_in and not _fading_out and
+            not minigame_overlay.is_blocking())
+
+
 def handle_event(event):
     if neglect.handle_event(event):
         return
-    # block all input during transitions so keypresses don't leak into the next scene
     if _fading_in or _fading_out:
         return
     if event.type == pygame.KEYDOWN and event.key == DEBUG_BEACH_KEY:
         _debug_jump_to_beach()
         return
-    # overlay wont let inputs pass if minigame active
+    if _can_pause() or pause_menu.is_active():
+        if pause_menu.handle_event(event, on_quit_to_menu=_on_quit_to_menu):
+            return
     if minigame_overlay.handle_event(event):
         return
     _current_scene().handle_event(event)
+
+
+def _on_quit_to_menu():
+    _do_save()
+    restart(new_game=False)
 
 
 def update(dt):
@@ -156,20 +185,30 @@ def update(dt):
         return
     if _fading_in or _pending_scene:
         return
-        
-    # start screen waits for any key before the story begins
+    if pause_menu.is_active():
+        return
+
     if scene == "start_screen":
         start_screen.update(dt)
         if start_screen.done:
-            switch("opening")
+            if save.has_save():
+                data = save.load()
+                if data:
+                    _do_load(data)
+                    sound.start_day(day_cycle.day)
+                    switch(data["scene"])
+                else:
+                    switch("opening")
+            else:
+                switch("opening")
         return
-        
-    # opening is handled separately because it does not use the day cycle
+
     if scene == "opening":
         opening.update(dt)
         if opening.done:
             switch("beach_intro")
         return
+
     if scene == "beach_intro":
         animations.update(dt)
         beach_intro.update(dt)
@@ -177,8 +216,7 @@ def update(dt):
             sound.start_day(day_cycle.day)
             switch("lighthouse")
         return
-    
-    # beach returns to day scene
+
     if scene == "beach":
         animations.update(dt)
         _current_scene().update(dt)
@@ -187,8 +225,7 @@ def update(dt):
     minigame_overlay.update(dt)
     if minigame_overlay.is_blocking():
         return
-        
-    # only tick the day clock when in day BUT not fading in or out
+
     if scene == "lighthouse" and not _fading_in and not _fading_out:
         if not dialogue.active():
             day_cycle.update(dt)
@@ -220,8 +257,6 @@ def update(dt):
         return
 
     if scene == "nightfall":
-        # this should have fixed the bug of night starting without before fading_in is complete
-        # but this didnt fix it...
         animations.update(dt)
         _current_scene().update(dt)
         if neglect.failed():
@@ -246,51 +281,37 @@ def _advance_day():
 
 
 def draw(screen):
-    # fill the background with the current sky color before anything else draws
     sky_color = day_cycle.sky_color()
-    
-    # Bugfix: If we are in the middle of switching to nightfall, keep the sky 
-    # as 'day' until the fade is 100% black to prevent the visual 'pop'.
     if scene == "lighthouse" and _fading_in:
         sky_color = constants.SKY_COLORS["day"]
-        
     screen.fill(sky_color)
-    
-    # draws non-ui elements
     _current_scene().draw(screen)
-
-    # draws red overlay
     apply_red_overlay(screen, day_cycle.day)
-    
-    # draws ui elements IFFF scene != "opening" and != "start_screen"
     if scene not in ("opening", "start_screen"):
         _current_scene().draw_ui(screen)
-    
-    # minigame panel draws on top of everything, including UI
     minigame_overlay.draw(screen)
     neglect.draw_overlay(screen)
-    
-    # fade logic
     if _fade_alpha > 0:
         fade = pygame.Surface(screen.get_size())
         fade.fill((0, 0, 0))
         fade.set_alpha(_fade_alpha)
         screen.blit(fade, (0, 0))
-        
+    pause_menu.draw(screen)
+
+
 def apply_red_overlay(screen, day):
     alpha = constants.RED_OVERLAY_ALPHA.get(day, 0)
     if alpha == 0:
         return
-    w, h = screen.get_size()
+    w, h    = screen.get_size()
     overlay = pygame.Surface((w, h), pygame.SRCALPHA)
-    cx, cy = w // 2, h // 2
-    max_r = int((cx ** 2 + cy ** 2) ** 0.5)
-    # draw concentric circles from edge inward, fading to transparent at center
-    steps = 48
+    cx, cy  = w // 2, h // 2
+    max_r   = int((cx ** 2 + cy ** 2) ** 0.5)
+    steps   = 48
     for i in range(steps, 0, -1):
-        t = i / steps                          # 1.0 at edge, near 0 at center
-        ring_alpha = int(alpha * (t ** 1.6))   # power curve — sharp edge, soft center
-        r = int(max_r * t)
+        t          = i / steps
+        ring_alpha = int(alpha * (t ** 1.6))
+        r          = int(max_r * t)
         pygame.draw.circle(overlay, (180, 0, 0, ring_alpha), (cx, cy), r)
     screen.blit(overlay, (0, 0))
 
@@ -303,21 +324,16 @@ def handle_resize():
 
 def _debug_jump_to_beach():
     global scene, _fade_alpha, _fading_in, _fading_out, _pending_scene
-
-    # Prime a clean Day 5 lighthouse state first so the beach still behaves
-    # like a normal side-trip and returning to lighthouse does not break.
-    day_cycle.day = 5
+    day_cycle.day      = 5
     day_cycle._elapsed = 0.0
     neglect.reset()
     dialogue.clear()
     minigame_overlay.reset_all()
-
-    scene = "lighthouse"
-    _fade_alpha = 0
-    _fading_in = False
-    _fading_out = False
+    scene          = "lighthouse"
+    _fade_alpha    = 0
+    _fading_in     = False
+    _fading_out    = False
     _pending_scene = None
-
     day.init()
     sound.start_day(day_cycle.day)
     switch("beach")
