@@ -88,8 +88,8 @@ class CleanLens(Minigame):
             except FileNotFoundError:
                 self._rag_img = False
 
-        if not self._has_rag:
-            rr = self._rag_rect()
+        if not self._has_rug:
+            rr = self._rug_rect()
             if self._rag_img:
                 img = pygame.transform.scale(self._rag_img, (rr.width * 2, rr.height * 2))
                 screen.blit(img, (rr.centerx - img.get_width() // 2, rr.centery - img.get_height() // 2))
