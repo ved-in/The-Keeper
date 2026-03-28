@@ -9,6 +9,8 @@ import pygame
 import core.view as view
 from systems.minigame import Minigame
 
+import core.sound as sound
+
 _WIRE_DEFS = [
     {"color": (210, 80,  80),  "label": "R"},
     {"color": (80,  180, 100), "label": "G"},
@@ -47,6 +49,7 @@ class FixWires(Minigame):
                 slot = self._slot_rect(self._dragging_idx)
                 if slot and slot.collidepoint(event.pos):
                     self._connected[self._dragging_idx] = True
+                    sound.play_wire_connect()
                 self._dragging_idx = None
         
         if event.type == pygame.MOUSEMOTION and self._dragging_idx is not None:
