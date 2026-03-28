@@ -28,12 +28,12 @@ _crates_placed: list[bool] = []
 _carrying: bool = False
 _font = None
 _task_idx: int = 0  # index in DAY_TASKS for this beach task
+_crates_day: int = -1  # which day _crates_placed was built for
 
 
 def init() -> None:
-    global _crates_placed, _carrying, _font, _task_idx
+    global _crates_placed, _carrying, _font, _task_idx, _crates_day
     _font = view.font(9, constants.FONT_PATH)
-    _crates_placed = [False] * len(_CRATE_SPOTS)
     _carrying = False
     # find the beach task idx from the day task list
     _task_idx = 0
@@ -41,6 +41,12 @@ def init() -> None:
         if t.get("task_type") == "beach":
             _task_idx = t.get("idx", 0)
             break
+    # Only reset crate progress when entering the beach for the first time on
+    # this day. Re-entering (e.g. going back to the lighthouse and returning)
+    # preserves whatever crates the player has already placed.
+    if _crates_day != day_cycle.day:
+        _crates_placed = [False] * len(_CRATE_SPOTS)
+        _crates_day = day_cycle.day
 
 
 def handle_event(event: pygame.event.Event) -> None:

@@ -29,7 +29,7 @@ _font = None
 _wait_timer = 0.0  # counts down after outro dialogue finishes before switching to day
 _WAIT_DURATION = 5.0
 
-NIGHT_DURATION = 60.0
+NIGHT_DURATION = 6.0
 _night_timer = 0.0
 
 _dim_alpha = 0

@@ -94,6 +94,10 @@ def init():
     
     _visitors = []
     for v in constants.VISITORS:
+        # Fisherman only appears on days he has specific dialogue for.
+        # After his last appearance (day 7) he should not be visible at all.
+        if v["name"] == "Fisherman" and day_cycle.day not in v["lines"]:
+            continue
         visitor = Visitor(
             v["name"], v["world_x"], v["y"],
             v.get("y_offset", 0), v["lines"],
@@ -134,6 +138,15 @@ def _active_visitors():
     return [v for v in _visitors if day_cycle.day in v.lines_by_day or "default" in v.lines_by_day]
 
 
+def _all_done() -> bool:
+    """True when all tasks are complete and all active visitors have been talked to."""
+    if not tasks.all_day_tasks_done():
+        return False
+    # only require talking to visitors who have day-specific lines
+    day_visitors = [v for v in _visitors if day_cycle.day in v.lines_by_day]
+    return all(v.talked_today for v in day_visitors)
+
+
 def handle_event(event):
     global _phase
     if _board_door_active:
@@ -149,7 +162,7 @@ def handle_event(event):
                     import core.game as game
                     game.switch("beach")
                     return
-            if tasks.all_day_tasks_done():
+            if _all_done():
                 if hud.skip_btn_rect().collidepoint(event.pos):
                     import core.game as game
                     game.skip_to_night()
@@ -223,7 +236,7 @@ def _draw_board_door_cutscene(screen):
 def draw_ui(screen):
     dialogue.draw(screen, player_rect=view.rect(_player["x"], _player["y"], _player["w"], _player["h"]))
     hud.draw(screen)
-    if tasks.all_day_tasks_done():
+    if _all_done():
         hud.draw_skip_button(screen)
     if day_cycle.day in constants.BEACH_DAYS:
         _draw_beach_button(screen)

@@ -28,6 +28,10 @@ SCENES = {
 
 RESET_ON_ENTER = {"start_screen", "opening", "beach_intro", "nightfall", "lighthouse", "day_night", "beach"}
 
+# Scenes that are just side-trips from the day scene, returning to lighthouse
+# from these should NOT re-init the day (which would reset task progress).
+_BEACH_SIDE_TRIPS = {"beach"}
+
 scene = "opening"
 
 _fade_alpha = 0
@@ -101,12 +105,18 @@ def _update_fade(dt):
             _fading_in  = False
             _fading_out = True
             if _pending_scene is not None:
+                prev_scene  = scene
                 scene = _pending_scene
                 _pending_scene = None
                 if scene in RESET_ON_ENTER:
-                    if scene in ("nightfall", "lighthouse", "day_night"):
-                        minigame_overlay.reset_all()
-                    SCENES[scene].init()
+                    # returning from beach fu**s shit up
+                    # tasks get reset n all, so we need this ;(
+                    returning_from_beach = (scene == "lighthouse" and
+                                            prev_scene in _BEACH_SIDE_TRIPS)
+                    if not returning_from_beach:
+                        if scene in ("nightfall", "lighthouse", "day_night"):
+                            minigame_overlay.reset_all()
+                        SCENES[scene].init()
     elif _fading_out:
         _fade_alpha = max(0, _fade_alpha - int(FADE_SPEED * dt))
         if _fade_alpha <= 0:

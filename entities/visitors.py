@@ -1,7 +1,7 @@
 import pygame
 import core.view as view
 import ui.dialogue as dialogue
-from entities.interactables import Interactable
+from entities.interactables import Interactable, _draw_bounce_arrow
 import entities.animations as animations
 import entities.player as player
 

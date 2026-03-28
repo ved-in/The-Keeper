@@ -6,7 +6,41 @@ import entities.animations as animations
 
 from typing import Optional, Callable
 
-INTERACT_RANGE = 120  # max world-x distance to trigger interaction
+
+def _draw_bounce_arrow(screen, rect):
+    t = pygame.time.get_ticks() / 1000.0
+    bob = int(math.sin(t * 4.0) * view.scale(4))
+    cx = rect.centerx
+    tip_y = rect.top - view.scale(26) + bob
+    half_w = view.scale(6)
+    arrow_h = view.scale(7)
+    col = (255, 230, 80)
+    outline_col = (0, 0, 0)
+    pts = [
+        (cx,            tip_y + arrow_h),
+        (cx - half_w,  tip_y),
+        (cx + half_w,  tip_y),
+    ]
+    o = view.scale(2)
+    outline_pts = [
+        (cx,               tip_y + arrow_h + o),
+        (cx - half_w - o, tip_y - o),
+        (cx + half_w + o, tip_y - o),
+    ]
+    pygame.draw.polygon(screen, outline_col, outline_pts)
+    pygame.draw.polygon(screen, col, pts)
+    # stem outline
+    # stem outline: draw as a polygon, not a filled rect
+    stem_outline_pts = [
+        (cx - view.scale(2) - o, tip_y - 4 - o),
+        (cx + view.scale(2) + o, tip_y - 4 - o),
+        (cx + view.scale(2) + o, tip_y),
+        (cx - view.scale(2) - o, tip_y),
+    ]
+    pygame.draw.polygon(screen, outline_col, stem_outline_pts)
+    pygame.draw.rect(screen, col,
+                    pygame.Rect(cx - view.scale(2), tip_y - 4,
+                                view.scale(4), view.scale(5)))
 
 
 class Interactable:    
@@ -21,6 +55,7 @@ class Interactable:
         self.used_today = False
         self.hovered = False
         self.pending = False
+        self.pending = False   # True when this object has an active task/dialogue today
         self.on_use: Optional[Callable[[], None]] = None # F__K PYLANCEEE
         
         # if anim_key is provided directly, use that instead of auto-registering
@@ -48,12 +83,6 @@ class Interactable:
         if not self.is_on_screen(world_offset):
             return False
         if self.screen_rect(world_offset).collidepoint(pos):
-            import entities.player as player
-            p = player._player
-            if p is not None:
-                player_world_x = p["x"] - player._world_offset
-                if abs(player_world_x - self.world_x) > INTERACT_RANGE:
-                    return False
             if hasattr(self, "on_use") and self.on_use:
                 self.on_use()
                 return True
@@ -76,8 +105,10 @@ class Interactable:
                 # center the sprite on the rect center
                 screen.blit(frame, (rect.centerx - frame.get_width() // 2, rect.centery - frame.get_height() // 2))
         else:
-            color = tuple(max(0, c - 40) for c in self.color) if self.used_today else self.color
-            pygame.draw.rect(screen, color, rect, border_radius=3)
+            # Only draw grey box for Light Motor, skip for Lens and Lighthouse Door
+            if self.name not in ("Lens", "Lighthouse Door"):
+                color = tuple(max(0, c - 40) for c in self.color) if self.used_today else self.color
+                pygame.draw.rect(screen, color, rect, border_radius=3)
         if self.hovered and font:
             label = font.render(self.name, True, (240, 235, 210))
             outline = font.render(self.name, True, (0, 0, 0))

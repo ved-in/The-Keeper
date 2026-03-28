@@ -31,7 +31,7 @@ _COL_SURVIVE = (200, 60,  60)
 # ── public draw calls ───────────────────────────────────────────────────────
 
 def draw(screen):
-    # show the current day number and the time-of-day progress bar
+    # show the current day number only (no time-of-day progress bar)
     _draw_label(screen, f"Day {day_cycle.day}", (200, 195, 215))
     _draw_progress_bar(screen)
     task_day = getattr(tasks, "_tasks_day", day_cycle.day)
@@ -64,7 +64,7 @@ def draw_skip_button(screen):
     pygame.draw.rect(screen, col, r, border_radius=view.scale(4))
     pygame.draw.rect(screen, (80, 150, 100), r, width=max(1, view.scale(1)), border_radius=view.scale(4))
     font = view.font(9, constants.FONT_PATH)
-    lbl = font.render("Skip to Night →", True, (180, 240, 200))
+    lbl = font.render("Go to Night →", True, (180, 240, 200))
     screen.blit(lbl, (r.centerx - lbl.get_width() // 2, r.centery - lbl.get_height() // 2))
 
 
