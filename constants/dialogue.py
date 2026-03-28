@@ -44,29 +44,29 @@ DAY_NIGHT_TUTORIAL_SCRIPTS = {
 
 # Shown after each night
 FINISH_SCRIPTS = {
-    1:  ["The lens is clear.", "The light will carry further tonight."],
-    2:  ["The pressure is logged.", "Numbers don't lie, even when they scare you."],
-    3:  ["The cables hold.", "For now."],
-    4:  ["The bulb is clean.", "The beam cuts through the dark like it should."],
-    5:  ["The sensors are in place.", "The scientist seems satisfied."],
-    6:  ["The shutters are locked.", "The red dust keeps falling."],
-    7:  ["The doors are boarded.", "This is the last supply drop."],
-    8:  ["The engine cools.", "The sound it made wasn't right."],
-    9:  ["The light keeps spinning.", "Your arms are tired.", "It doesn't matter."],
+    1:  ["The another night...", "The light will carry further tonight."],
+    2:  ["The pressure has increased...", "This is worrisome", "Numbers don't lie, even when they scare you."],
+    3:  ["The cables hold and the lens shines.", "For now."],
+    4:  ["The bulb is clean, but the pressure is building up.", "The beam cuts through the dark like it should."],
+    5:  ["The sensors had been placed.", "The scientist seems satisfied and worried at the same time.", "Weird.."],
+    6:  ["The shutters are locked.", "The red dust keeps falling.", "What in tarnation is this??"],
+    7:  ["The doors are boarded.", "This is the last supply drop.", "Better make this count."],
+    8:  ["The engine cools.", "The sound it made wasn't right.", "Its all that red dust's doing."],
+    9:  ["The light keeps spinning.", "Your arms are tired.", "Your arms don't matter.", "The light must go on."],
     10: ["...", "The lighthouse shakes."],
 }
 
 # Shown after completing all day tasks
 DAY_FINISH_SCRIPTS = {
-    1:  ["The generator is running.", "Good enough for now."],
+    1:  ["Everything seems functional.", "Good enough for now."],
     2:  ["Pressure logged.", "The numbers are getting worse."],
-    3:  ["Cables replaced.", "The light should hold another night."],
-    4:  ["Bulb is clean.", "The beam is as strong as it can be."],
-    5:  ["Sensors placed.", "The scientist seems to know something he isn't saying."],
-    6:  ["Shutters locked.", "The red dust gets in everywhere."],
+    3:  ["Pressure seems to be stabilizing but that Generator is worrying me.", "The light should hold another night."],
+    4:  ["Bulb is clean.", "Engine is strong.","The beam is as strong as it can be."],
+    5:  ["Sensors placed.", "The scientist seems to know something and he isn't saying it.", "I don't like secrets..."],
+    6:  ["Shutters locked.", "The red dust gets in everywhere.", "At this rate ill get asthma.."],
     7:  ["Doors boarded.", "Won't stop much, but it's something."],
-    8:  ["Engine cooled down.", "It won't last much longer."],
-    9:  ["Done.", "Hands are shaking."],
+    8:  ["The Engine cooled down.", "It won't last much longer."],
+    9:  ["Done.", "My hands are shaking.", "I cannot bear this"],
     10: [],
 }
 
