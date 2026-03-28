@@ -7,7 +7,7 @@ from typing import Optional, Callable
 
 
 class Interactable:    
-    def __init__(self, name, world_x, y, w, h, lines_by_day, color=(140, 130, 120), anim_path=None, anim_scale=1.0):
+    def __init__(self, name, world_x, y, w, h, lines_by_day, color=(140, 130, 120), anim_path=None, anim_scale=1.0, anim_key=None):
         self.name = name
         self.world_x = world_x
         self.y = y
@@ -19,10 +19,14 @@ class Interactable:
         self.hovered = False
         self.on_use: Optional[Callable[[], None]] = None # F__K PYLANCEEE
         
-        self.anim_key = None
-        if anim_path:
+        # if anim_key is provided directly, use that instead of auto-registering
+        if anim_key:
+            self.anim_key = anim_key
+        elif anim_path:
             self.anim_key = f"interactable_{name.lower().replace(' ', '_')}"
             animations.register(self.anim_key, "idle", anim_path, scale=anim_scale)
+        else:
+            self.anim_key = None
     
     def reset_daily(self):
         self.used_today = False
