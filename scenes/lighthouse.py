@@ -2,52 +2,41 @@ import pygame
 import entities.player as player
 import constants
 import core.view as view
-
 import pytmx
 
-# world space positions for the background elements
-GROUND          = (-250, constants.GROUND_Y, view.BASE_W, 140)
-TOWER           = (430, 120, 100, constants.GROUND_Y - 120)
-LANTERN         = (420, 100, 120, 40)
-BEACON          = (480, 200)
-BEACON_COLOR    = (255, 230, 120)
+GROUND = (-250, constants.GROUND_Y, view.BASE_W, 140)
+
+# Lighthouse Sprite Properties
+SPRITE_X = 400
+SPRITE_Y = 100
+SPRITE_W = 160
+SPRITE_H = constants.GROUND_Y - 100
+
+# Beacon Position
+BEACON = (480, 160)
+BEACON_COLOR = (255, 230, 120)
+
+_sprite = None
 
 
 def init():
-    global tmx_bg
-    # load the tiled map file that contains the background tiles
+    global tmx_bg, _sprite
     tmx_bg = pytmx.load_pygame("assets/map/bg/untitled.tmx")
 
+    try:
+        raw_image = pygame.image.load("assets/sprites/lighthouse.png").convert_alpha()
+        _sprite = pygame.transform.scale(
+            raw_image, (view.scale(SPRITE_W), view.scale(SPRITE_H))
+        )
+    except FileNotFoundError:
+        _sprite = None
 
-def _rect(x_pos, y_pos, width, height):
-    # converts world coordinates to screen coordinates using the scroll offset
-    return view.rect(player.world_x(x_pos), y_pos, width, height)
-
-
-def draw_tmx(screen, tmx):
-    for layer in tmx.visible_layers:
-        if hasattr(layer, "data"):
-            for x, y, gid in layer:
-                # gid 0 means empty tile, skip it
-                if gid == 0:
-                    continue    
-                tile = tmx.get_tile_image_by_gid(gid)
-                if tile is None:
-                    continue    
-                # scale the tile up to match the zoom level
-                scaled_tile = pygame.transform.scale(tile, (int(tmx.tilewidth * 2), int(tmx.tileheight * 2)))
-                # position the tile using the scroll offset so it moves with the world
-                screen.blit(scaled_tile, view.point(
-                    x * tmx.tilewidth * 1.2 - 300 + player._world_offset,
-                    y * tmx.tileheight * 1.2 - 120
-                ))    
 
 def draw(screen):
-    # ground rect is commented out because the tilemap covers it visually
-    # pygame.draw.rect(screen, (55, 50, 70), _rect(*GROUND))
-    pygame.draw.rect(screen, (200, 195, 185), _rect(*TOWER))
-    pygame.draw.rect(screen, (240, 220, 130), _rect(*LANTERN))
-    
+    if _sprite:
+        pos = view.point(player.world_x(SPRITE_X), SPRITE_Y)
+        screen.blit(_sprite, pos)
+
     draw_tmx(screen, tmx_bg)
 
 
@@ -56,45 +45,57 @@ def beacon_center():
     return view.point(player.world_x(BEACON[0]), BEACON[1])
 
 
-def draw_beacon(
-    screen,
-    pulse=0.0,
-    *,
-    glow_radius,
-    glow_pulse=0,
-    glow_alpha=18,
-    glow_alpha_pulse=0,
-    core_radius=40,
-    core_pulse=0,
-    inner_glow_radius=None,
-    inner_glow_ratio=0.72,
-    inner_glow_alpha=None,
-    inner_glow_alpha_pulse=0,
-):
-    # pulse is a 0.0 to 1.0 value that drives the breathing animation
+def draw_beacon(screen, pulse=0.0, *, glow_radius, glow_pulse=0, glow_alpha=12, glow_alpha_pulse=20, core_radius=30, core_pulse=4, inner_glow_radius=None, inner_glow_ratio=0.85, inner_glow_alpha=20, inner_glow_alpha_pulse=25):
+    # Determine the screen-space center for the beacon
     cx, cy = beacon_center()
 
-    # outer glow drawn on a transparent surface so its alpha blends properly
-    glow_radius_px = view.scale(glow_radius + int(glow_pulse * pulse))
-    glow = pygame.Surface((glow_radius_px * 2, glow_radius_px * 2), pygame.SRCALPHA)
+    # Calculate radii for the layered light blobs
+    atmos_radius_px = view.scale(int(glow_radius * 2.8) + int(glow_pulse * pulse))
+    atmos_sec_radius_px = view.scale(int(glow_radius * 1.9) + int(glow_pulse * pulse))
+    glow_radius_px = view.scale(int(glow_radius * 1.3) + int(glow_pulse * pulse))
 
-    pygame.draw.circle(
-        glow,
-        (*BEACON_COLOR, glow_alpha + int(glow_alpha_pulse * pulse)),
-        (glow_radius_px, glow_radius_px),
-        glow_radius_px,
-    )
+    # Prepare a transparent surface sized to the largest radius
+    light_surf = pygame.Surface((atmos_radius_px * 2, atmos_radius_px * 2), pygame.SRCALPHA)
+    center = (atmos_radius_px, atmos_radius_px)
 
-    # optional inner glow ring drawn on the same surface before blitting
-    if inner_glow_alpha is not None:
-        inner_radius_px = max(view.scale(inner_glow_radius or 0), int(glow_radius_px * inner_glow_ratio))
-        pygame.draw.circle(
-            glow,
-            (*BEACON_COLOR, inner_glow_alpha + int(inner_glow_alpha_pulse * pulse)),
-            (glow_radius_px, glow_radius_px),
-            inner_radius_px,
-        )
+    # Layer 1: Atmospheric Fringe (Outermost)
+    fringe_alpha = 3 + int(5 * pulse)
+    pygame.draw.circle(light_surf, (*BEACON_COLOR, fringe_alpha), center, atmos_radius_px)
 
-    screen.blit(glow, (cx - glow_radius_px, cy - glow_radius_px))
-    # solid filled circle drawn on top as the bright core of the beacon
-    pygame.draw.circle(screen, BEACON_COLOR, (cx, cy), view.scale(core_radius + int(core_pulse * pulse)))
+    # Layer 2: Secondary Halo (Middle-outer)
+    halo_alpha = 8 + int(10 * pulse)
+    pygame.draw.circle(light_surf, (*BEACON_COLOR, halo_alpha), center, atmos_sec_radius_px)
+
+    # Layer 3: Standard Glow (Main light body)
+    standard_alpha = glow_alpha + int(glow_alpha_pulse * pulse)
+    pygame.draw.circle(light_surf, (*BEACON_COLOR, standard_alpha), center, glow_radius_px)
+
+    # Layer 4: Central Core (Smallest and brightest)
+    core_alpha = 180 + int(75 * pulse)
+    core_radius_px = view.scale(core_radius + int(core_pulse * pulse))
+    pygame.draw.circle(light_surf, (*BEACON_COLOR, core_alpha), center, core_radius_px)
+
+    # Blit the assembled light surface to the screen
+    screen.blit(light_surf, (cx - atmos_radius_px, cy - atmos_radius_px))
+
+
+def _rect(x_pos, y_pos, width, height):
+    # Convert world-space dimensions and position to screen-space rect
+    return view.rect(player.world_x(x_pos), y_pos, width, height)
+
+
+def draw_tmx(screen, tmx):
+    # Render all visible layers from the Tiled map
+    for layer in tmx.visible_layers:
+        if hasattr(layer, "data"):
+            for x, y, gid in layer:
+                if gid == 0: continue
+                
+                tile = tmx.get_tile_image_by_gid(gid)
+                if tile is None: continue
+
+                # Scale tile and calculate position with world offset
+                scaled_tile = pygame.transform.scale(tile, (int(tmx.tilewidth * 2), int(tmx.tileheight * 2)))
+                render_pos = view.point(x * tmx.tilewidth * 1.2 - 300 + player._world_offset, y * tmx.tileheight * 1.2 - 120)
+                
+                screen.blit(scaled_tile, render_pos)

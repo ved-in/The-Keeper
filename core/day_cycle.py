@@ -35,16 +35,4 @@ def next_day():
 
 
 def sky_color():
-    if is_night():
-        return constants.SKY_COLORS["night"]
-    
-    day_colors = constants.DAY_SKY_COLORS
-    base = day_colors.get(day, constants.SKY_COLORS["day"])
-    
-    # blend slightly to next day's color
-    next_col = day_colors.get(day + 1, base)
-    t = progress()
-    r = int(base[0] + (next_col[0] - base[0]) * t * 0.4)
-    g = int(base[1] + (next_col[1] - base[1]) * t * 0.4)
-    b = int(base[2] + (next_col[2] - base[2]) * t * 0.4)
-    return (r, g, b)
+    return constants.SKY_COLORS["night"] if is_night() else constants.SKY_COLORS["day"]

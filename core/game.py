@@ -1,11 +1,9 @@
 import core.day_cycle as day_cycle
 import scenes.lighthouse as lighthouse
 import scenes.day as day
-import scenes.day_night as day_night
 import scenes.nightfall as nightfall
 import scenes.opening as opening
 import scenes.beach_intro as beach_intro
-import scenes.beach as beach
 import entities.animations as animations
 import systems.tasks as tasks
 import systems.minigame_overlay as minigame_overlay
@@ -15,15 +13,14 @@ import pygame
 
 # maps scene name strings to their modules so we can switch between them easily
 SCENES = {
-    "opening":     opening,
+    "opening": opening,
     "beach_intro": beach_intro,
-    "lighthouse":  day,
-    "day_night":   day_night,
-    "nightfall":   nightfall,
-    "beach":       beach,
+    "lighthouse": day,
+    "nightfall": nightfall,
 }
 
-RESET_ON_ENTER = {"opening", "beach_intro", "nightfall", "lighthouse", "day_night", "beach"}
+# scenes in this set get fully re-initialised every time we switch to them
+RESET_ON_ENTER = {"opening", "beach_intro", "nightfall", "lighthouse"}
 
 scene = "opening"
 
@@ -41,23 +38,19 @@ def init():
     # load all sprite sheets before the game loop starts
     animations.load_all()
     
-    import minigames.clean_lens        as clean_lens
-    import minigames.fix_wires         as fix_wires
-    import minigames.flip_breakers     as flip_breakers
-    import minigames.pressure_valves   as pressure_valves
-    import minigames.manual_crank      as manual_crank
-    import minigames.log_pressure      as log_pressure
-    import minigames.lubricate_engine  as lubricate_engine
-    import minigames.refuel_generator  as refuel_generator
-
-    minigame_overlay.register("minigame_clean",    clean_lens.instance)
-    minigame_overlay.register("minigame_wires",    fix_wires.instance)
+    import minigames.clean_lens as clean_lens
+    import minigames.fix_wires as fix_wires
+    import minigames.flip_breakers as flip_breakers
+    import minigames.pressure_valves as pressure_valves
+    import minigames.manual_crank as manual_crank
+    import minigames.log_pressure as log_pressure
+    
+    minigame_overlay.register("minigame_clean", clean_lens.instance)
+    minigame_overlay.register("minigame_wires", fix_wires.instance)
     minigame_overlay.register("minigame_breakers", flip_breakers.instance)
-    minigame_overlay.register("minigame_valves",   pressure_valves.instance)
-    minigame_overlay.register("minigame_crank",    manual_crank.instance)
+    minigame_overlay.register("minigame_valves", pressure_valves.instance)
+    minigame_overlay.register("minigame_crank", manual_crank.instance)
     minigame_overlay.register("minigame_pressure", log_pressure.instance)
-    minigame_overlay.register("minigame_lube",     lubricate_engine.instance)
-    minigame_overlay.register("minigame_refuel",   refuel_generator.instance)
     minigame_overlay.reset_all()
     # switch directly for no fade
     global scene
@@ -71,37 +64,18 @@ def switch(name):
     _fading_in = True  # start fading to black
 
 
-def skip_to_night():
-    global _pending_scene, _fading_in
-    _pending_scene = "nightfall"
-    _fading_in = True
-
-
-def restart():
-    global scene, _fade_alpha, _fading_in, _fading_out, _pending_scene
-    _fade_alpha    = 0
-    _fading_in     = False
-    _fading_out    = False
-    _pending_scene = None
-    day_cycle.init()
-    tasks.reset_for_day()
-    minigame_overlay.reset_all()
-    scene = "opening"
-    opening.init()
-
-
 def _update_fade(dt):
     global _fade_alpha, _fading_in, _fading_out, _pending_scene, scene
     if _fading_in:
         _fade_alpha = min(255, _fade_alpha + int(FADE_SPEED * dt))
         if _fade_alpha >= 255:
-            _fading_in  = False
+            _fading_in = False
             _fading_out = True
             if _pending_scene is not None:
                 scene = _pending_scene
                 _pending_scene = None
                 if scene in RESET_ON_ENTER:
-                    if scene in ("nightfall", "lighthouse", "day_night"):
+                    if scene in ("nightfall", "lighthouse"):
                         minigame_overlay.reset_all()
                     SCENES[scene].init()
     elif _fading_out:
@@ -141,12 +115,6 @@ def update(dt):
         if beach_intro.done:
             switch("lighthouse")
         return
-    
-    # beach returns to day scene
-    if scene == "beach":
-        animations.update(dt)
-        _current_scene().update(dt)
-        return
 
     minigame_overlay.update(dt)
     if minigame_overlay.is_blocking():
@@ -155,44 +123,36 @@ def update(dt):
     # only tick the day clock when in day BUT not fading in or out
     if scene == "lighthouse" and not _fading_in and not _fading_out:
         day_cycle.update(dt)
-        animations.update(dt)
-        _current_scene().update(dt)
+        # FIXED: The visual snap is now handled in the draw() function 
+        # to ensure the sky stays daytime until the fade is complete.
         if day_cycle.is_night():
             switch("nightfall")
-        return
 
-    if scene == "day_night":
-        animations.update(dt)
-        _current_scene().update(dt)
-        if day_night.done:
-            _advance_day()
-        return
+    # advance all animation frames once per tick
+    animations.update(dt)
+    
+    _current_scene().update(dt)
 
-    if scene == "nightfall":
-        # this should have fixed the bug of night starting without before fading_in is complete
-        # but this didnt fix it...
-        animations.update(dt)
-        _current_scene().update(dt)
-        if nightfall.done and not _fading_in and not _fading_out:
-            _advance_day()
-        return
-
-
-def _advance_day():
-    day_cycle.next_day()
-    tasks.reset_for_day()
-    for obj in day._interactables + day._visitors:
-        obj.reset_daily()
-        obj.on_use = None
-    if day_cycle.day >= constants.DAY_NIGHT_START:
-        switch("day_night")
-    else:
+    # when the player finishes reading the night dialogue, start the next day
+    if scene == "nightfall" and nightfall.done and not _fading_in and not _fading_out:
+        day_cycle.next_day()
+        tasks.reset_for_day()
+        for obj in day._interactables + day._visitors:
+            obj.reset_daily()
+            obj.on_use = None
         switch("lighthouse")
 
 
 def draw(screen):
     # fill the background with the current sky color before anything else draws
-    screen.fill(day_cycle.sky_color())
+    sky_color = day_cycle.sky_color()
+    
+    # Bugfix: If we are in the middle of switching to nightfall, keep the sky 
+    # as 'day' until the fade is 100% black to prevent the visual 'pop'.
+    if scene == "lighthouse" and _fading_in:
+        sky_color = constants.SKY_COLORS["day"]
+        
+    screen.fill(sky_color)
     
     # draws non-ui elements
     _current_scene().draw(screen)

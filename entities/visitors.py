@@ -7,12 +7,11 @@ class Visitor(Interactable):
     def __init__(self, name, world_x, y, y_offset, lines_by_day, anim_folder=None, anim_scale=1.0, anim_key=None):
         super().__init__(name, world_x, y, 24, 40, lines_by_day, color=(180, 160, 140))
         self.talked_today = False
+        self.anim_scale = anim_scale  # Added: store the scale
         
-        # if anim_key is provided directly, use that instead of auto-registering
         if anim_key:
             self.anim_key = anim_key
         elif anim_folder:
-            # legacy support for folder-based registration
             self.anim_key = f"visitor_{name.lower().replace(' ', '_')}"
             animations.register(self.anim_key, "idle", anim_folder, scale=anim_scale)
         else:
@@ -39,6 +38,10 @@ class Visitor(Interactable):
         if self.anim_key:
             frame = animations.get_frame(self.anim_key, anim_state, flip=flip)
             if frame:
+                # Added: actually apply the scale to the frame
+                if self.anim_scale != 1.0:
+                    frame = pygame.transform.scale(frame, (int(frame.get_width() * self.anim_scale), int(frame.get_height() * self.anim_scale)))
+                
                 # align sprite bottom to the rect bottom (standing on ground)
                 screen.blit(frame, (rect.centerx - frame.get_width() // 2, rect.bottom - frame.get_height() + self.y_offset))
         else:

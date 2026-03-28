@@ -1,9 +1,9 @@
 """
-Beach Intro scene: plays once before Day 1.
+Beach Intro scene — plays once before Day 1.
 
 The player can walk freely across the beach (screen-bounded, no world scroll).
 The fisherman stands on the dock as a Visitor. Click him to trigger day 1
-dialogue. Once the last line is dismissed, done = True → game switches to day 1.
+dialogue. Once the last line is dismissed, done = True -> game switches to day 1.
 """
 
 import pygame
@@ -23,23 +23,22 @@ _LEFT_EDGE = 40
 _RIGHT_EDGE = 920
 _GROUND_Y = 360
 
+# Beach/Sand color
+_SAND_COLOR = (232, 210, 155)
+
 
 def init():
     global done, _player, _fisherman, _font
     done = False
     
-    # player starts at the left side of the beach
     _player = player.make_player()
     _player["x"] = 160.0
-    _player["y"] = float(_GROUND_Y)
+    _player["y"] = float(_GROUND_Y - _player["h"]) 
     
-    # keep world offset at 0 — beach fills one screen
     player.reset_world()
-    
     _font = view.font(11, constants.FONT_PATH)
     
-    # fisherman as a Visitor with animation support
-    # animations are pre-registered in game.init() -> animations.load_all()
+    # fisherman setup
     _fisherman = Visitor(
         name="Fisherman",
         world_x=680,
@@ -47,9 +46,8 @@ def init():
         y_offset=0,
         lines_by_day={1: constants.VISITORS[1]["lines"][1]},
         anim_key="fisherman",
-        anim_scale=4.5,
+        anim_scale=2.0,
     )
-
 
 def handle_event(event):
     global done
@@ -80,6 +78,11 @@ def update(dt):
 
 
 def draw(screen):
+    # Draw the sand ground so the player isn't walking on air
+    w, h = screen.get_size()
+    ground_y_px = view.scale(_GROUND_Y)
+    pygame.draw.rect(screen, _SAND_COLOR, (0, ground_y_px, w, h - ground_y_px))
+
     # background is drawn by game.py via sky_color() — just draw scene elements
     _fisherman.draw(screen, 0, _font, flip=True)
     player.draw(screen, _player)
