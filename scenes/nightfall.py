@@ -31,7 +31,7 @@ _font = None
 _wait_timer = 0.0  # counts down after outro dialogue finishes before switching to day
 _WAIT_DURATION = 5.0
 
-NIGHT_DURATION = constants.DAY_LENGTH
+NIGHT_DURATION = 50
 _night_timer = 0.0
 
 _dim_alpha = 0
