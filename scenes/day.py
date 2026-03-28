@@ -55,16 +55,27 @@ def init():
             obj.on_use = _launch
         _interactables.append(obj)
 
-    _visitors = [
-        Visitor(
-            v["name"],
-            v["world_x"], v["y"],
-            v.get("y_offset", 0),
-            v["lines"],
-            anim_folder=v.get("anim_folder"), anim_scale=v.get("anim_scale", 1.0)
-        )
-        for v in constants.VISITORS
-    ]
+    _visitors = []
+    for v in constants.VISITORS:
+        # fisherman gets special treatment with pre-registered animation key
+        if v["name"] == "Fisherman":
+            visitor = Visitor(
+                v["name"],
+                v["world_x"], v["y"],
+                v.get("y_offset", 0),
+                v["lines"],
+                anim_key="fisherman",
+                anim_scale=v.get("anim_scale", 1.0)
+            )
+        else:
+            visitor = Visitor(
+                v["name"],
+                v["world_x"], v["y"],
+                v.get("y_offset", 0),
+                v["lines"],
+                anim_folder=v.get("anim_folder"), anim_scale=v.get("anim_scale", 1.0)
+            )
+        _visitors.append(visitor)
 
 
 def notify_task_done(idx: int = 0):
@@ -106,7 +117,10 @@ def update(dt):
 def draw(screen):
     lighthouse.draw(screen)
     for obj in _interactables + _active_visitors():
-        obj.draw(screen, player._world_offset, _font)
+        if obj.name == "Fisherman":
+            obj.draw(screen, player._world_offset, _font, flip=True)
+        else:
+            obj.draw(screen, player._world_offset, _font)
     player.draw(screen, _player)
 
 
