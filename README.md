@@ -42,7 +42,7 @@ pip install pygame pytmx
 ## How to Run
 
 ```bash
-pip install -r requirements.txr
+pip install -r requirements.txt
 ```
 
 `run_game.py` is the standard entry point. It checks your Python version and exits with a clear message if it is too old, then launches the game. You can also run `main.py` directly, but `run_game.py` is recommended.
