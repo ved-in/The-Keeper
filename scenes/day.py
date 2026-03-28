@@ -8,6 +8,7 @@ import core.view as view
 import core.day_cycle as day_cycle
 import systems.tasks as tasks
 import systems.minigame_overlay as minigame_overlay
+import systems.neglect as neglect
 
 from entities.interactables import Interactable
 from entities.visitors import Visitor
@@ -126,6 +127,7 @@ def notify_task_done(idx: int = 0):
     """Called by a day minigame when it completes."""
     global _phase
     tasks.complete_day_task(idx)
+    neglect.relieve(constants.NEGLECT_TASK_RELIEF)
     _refresh_pending_flags()
     if tasks.all_day_tasks_done():
         _phase = "outro"
@@ -199,6 +201,20 @@ def update(dt):
     
     dialogue.update(dt)
     if not dialogue.active():
+        day_task_list = tasks.get_day_tasks(day_cycle.day)
+        pending_count = sum(
+            1
+            for i, task in enumerate(day_task_list)
+            if not tasks.day_task_done(task.get("idx", i))
+        )
+        if pending_count:
+            urgency = 0.55 + 0.75 * day_cycle.progress()
+            neglect.add(
+                dt * constants.NEGLECT_DAY_RATE * (pending_count / max(len(day_task_list), 1)) * urgency,
+                "Too much daylight work was left unfinished. The light goes dark before night truly begins.",
+            )
+        else:
+            neglect.relieve(dt * constants.NEGLECT_STABILITY_RELIEF)
         player.update(_player, dt)
         mouse_pos = pygame.mouse.get_pos()
         for obj in _interactables + _visitors:
@@ -300,6 +316,7 @@ def _help_card():
             "Tutorial",
             [
                 "Gold markers show your current chores.",
+                "Neglect rises if you leave tasks hanging too long.",
                 "Click nearby highlighted objects to start their repair task.",
                 "The lighthouse door is not an interior transition.",
             ],

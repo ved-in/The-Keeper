@@ -3,6 +3,7 @@ import pygame
 import constants
 import core.day_cycle as day_cycle
 import systems.tasks as tasks
+import systems.neglect as neglect
 import core.view as view
 
 _PANEL_X   = 16
@@ -33,6 +34,7 @@ _COL_SURVIVE = (200, 60,  60)
 def draw(screen):
     # show the current day number only (no time-of-day progress bar)
     _draw_label(screen, f"Day {day_cycle.day}", (200, 195, 215))
+    _draw_neglect_meter(screen)
     _draw_progress_bar(screen)
     task_day = getattr(tasks, "_tasks_day", day_cycle.day)
     task_list = tasks.get_day_tasks(task_day)
@@ -42,7 +44,7 @@ def draw(screen):
 
 def draw_day_night(screen, active_emergency, scene_t=0.0, scene_duration=120.0):
     _draw_label(screen, f"Day {day_cycle.day}?", (180, 140, 140))
-    
+    _draw_neglect_meter(screen)
     _draw_scene_progress_bar(screen, scene_t, scene_duration, paused=active_emergency is not None)
     task_day = getattr(tasks, "_tasks_day", day_cycle.day)
     task_list = tasks.get_day_tasks(task_day)
@@ -54,6 +56,7 @@ def draw_day_night(screen, active_emergency, scene_t=0.0, scene_duration=120.0):
 
 def draw_night(screen, night_timer: float, night_duration: float, active_emergency):
     _draw_label(screen, f"Night {day_cycle.day}", (120, 110, 150))
+    _draw_neglect_meter(screen)
     _draw_night_task_panel(screen, night_timer, night_duration, active_emergency)
 
 
@@ -133,6 +136,38 @@ def _draw_label(screen, text, color):
     font = view.font(13, constants.FONT_PATH)
     lbl  = font.render(text, True, color)
     screen.blit(lbl, view.point(16, 16))
+
+
+def _draw_neglect_meter(screen):
+    border = view.rect(160, 34, 108, 8)
+    radius = max(1, view.scale(3))
+    inner = border.inflate(-view.scale(2), -view.scale(2))
+
+    font = view.font(8, constants.FONT_PATH)
+    label = font.render("NEGLECT", True, (214, 184, 188))
+    screen.blit(label, (border.left, view.y(16)))
+
+    pygame.draw.rect(screen, (30, 24, 30), border, border_radius=radius)
+    pygame.draw.rect(
+        screen,
+        (86, 76, 88),
+        border,
+        width=max(1, view.scale(1)),
+        border_radius=radius,
+    )
+    pygame.draw.rect(screen, (58, 28, 34), inner, border_radius=radius)
+
+    fill = inner.copy()
+    fill.width = int(inner.width * neglect.ratio())
+    if fill.width:
+        t = neglect.ratio()
+        pulse = 0.5 + 0.5 * math.sin(pygame.time.get_ticks() * 0.008)
+        fill_col = (
+            int(134 + (94 * t)),
+            int(54 + (36 * (1.0 - t)) + (28 * pulse * t)),
+            int(66 + (18 * (1.0 - t))),
+        )
+        pygame.draw.rect(screen, fill_col, fill, border_radius=radius)
 
 
 def _draw_progress_bar(screen):

@@ -11,6 +11,7 @@ import scenes.beach as beach
 import entities.animations as animations
 import systems.tasks as tasks
 import systems.minigame_overlay as minigame_overlay
+import systems.neglect as neglect
 import ui.dialogue as dialogue
 import constants
 
@@ -40,11 +41,13 @@ _fading_in = False
 _fading_out = False
 _pending_scene = None
 FADE_SPEED = 200
+DEBUG_BEACH_KEY = pygame.K_F9
 
 
 def init():
     day_cycle.init()
     sound.init()
+    neglect.reset()
     lighthouse.init()
     day.init()
     # load all sprite sheets before the game loop starts
@@ -94,6 +97,7 @@ def restart():
     _pending_scene = None
     sound.stop_all()
     day_cycle.init()
+    neglect.reset()
     tasks.reset_for_day()
     minigame_overlay.reset_all()
     scene = "start_screen"
@@ -131,8 +135,13 @@ def _current_scene():
 
 
 def handle_event(event):
+    if neglect.handle_event(event):
+        return
     # block all input during transitions so keypresses don't leak into the next scene
     if _fading_in or _fading_out:
+        return
+    if event.type == pygame.KEYDOWN and event.key == DEBUG_BEACH_KEY:
+        _debug_jump_to_beach()
         return
     # overlay wont let inputs pass if minigame active
     if minigame_overlay.handle_event(event):
@@ -142,6 +151,9 @@ def handle_event(event):
 
 def update(dt):
     _update_fade(dt)
+    if neglect.failed():
+        neglect.update(dt)
+        return
     if _fading_in or _pending_scene:
         return
         
@@ -182,14 +194,28 @@ def update(dt):
             day_cycle.update(dt)
         animations.update(dt)
         _current_scene().update(dt)
+        if neglect.failed():
+            return
         if day_cycle.is_night():
+            _apply_missed_task_penalty(
+                "Too much daylight work was left unfinished. The light goes dark before night truly begins."
+            )
+            if neglect.failed():
+                return
             switch("nightfall")
         return
 
     if scene == "day_night":
         animations.update(dt)
         _current_scene().update(dt)
+        if neglect.failed():
+            return
         if day_night.done:
+            _apply_missed_task_penalty(
+                "The chores pile up faster than you can answer them. The light finally gives way."
+            )
+            if neglect.failed():
+                return
             _advance_day()
         return
 
@@ -198,6 +224,8 @@ def update(dt):
         # but this didnt fix it...
         animations.update(dt)
         _current_scene().update(dt)
+        if neglect.failed():
+            return
         if nightfall.done and not _fading_in and not _fading_out:
             _advance_day()
         return
@@ -240,6 +268,7 @@ def draw(screen):
     
     # minigame panel draws on top of everything, including UI
     minigame_overlay.draw(screen)
+    neglect.draw_overlay(screen)
     
     # fade logic
     if _fade_alpha > 0:
@@ -270,3 +299,36 @@ def handle_resize():
     animations.rebuild_scaled()
     lighthouse.rebuild_scaled()
     beach_intro.rebuild_scaled()
+
+
+def _debug_jump_to_beach():
+    global scene, _fade_alpha, _fading_in, _fading_out, _pending_scene
+
+    # Prime a clean Day 5 lighthouse state first so the beach still behaves
+    # like a normal side-trip and returning to lighthouse does not break.
+    day_cycle.day = 5
+    day_cycle._elapsed = 0.0
+    neglect.reset()
+    dialogue.clear()
+    minigame_overlay.reset_all()
+
+    scene = "lighthouse"
+    _fade_alpha = 0
+    _fading_in = False
+    _fading_out = False
+    _pending_scene = None
+
+    day.init()
+    sound.start_day(day_cycle.day)
+    switch("beach")
+
+
+def _apply_missed_task_penalty(reason: str) -> None:
+    missed = 0
+    for i, task in enumerate(tasks.get_day_tasks(day_cycle.day)):
+        if task.get("task_type") == "survive":
+            continue
+        if not tasks.day_task_done(task.get("idx", i)):
+            missed += 1
+    if missed:
+        neglect.add(constants.NEGLECT_DAY_END_PENALTY * missed, reason)
