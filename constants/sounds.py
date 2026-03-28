@@ -1,6 +1,6 @@
 ENVIRONMENTAL_SOUNDS = {
-    "crickets" : "assets/sound/cricketChriping.mp3",
-    "birds" : "assets/sound/birdsChirping.mp3",
+    "crickets" : "assets/sound/cricketChriping.ogg",
+    "birds" : "assets/sound/birdsChirping.ogg",
     "waves" : "assets/sound/oceanFlowing.mp3",
     "thunderstorm" : "assets/sound/iWasLightningBeforeTheThunder.mp3",
     "wind" : "assets/sound/winds.wav"
