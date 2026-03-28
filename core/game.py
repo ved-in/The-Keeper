@@ -192,7 +192,14 @@ def _advance_day():
 
 def draw(screen):
     # fill the background with the current sky color before anything else draws
-    screen.fill(day_cycle.sky_color())
+    sky_color = day_cycle.sky_color()
+    
+    # Bugfix: If we are in the middle of switching to nightfall, keep the sky 
+    # as 'day' until the fade is 100% black to prevent the visual 'pop'.
+    if scene == "lighthouse" and _fading_in:
+        sky_color = constants.SKY_COLORS["day"]
+        
+    screen.fill(sky_color)
     
     # draws non-ui elements
     _current_scene().draw(screen)

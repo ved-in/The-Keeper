@@ -94,24 +94,12 @@ def init():
     
     _visitors = []
     for v in constants.VISITORS:
-        # fisherman gets special treatment with pre-registered animation key
-        if v["name"] == "Fisherman":
-            visitor = Visitor(
-                v["name"],
-                v["world_x"], v["y"],
-                v.get("y_offset", 0),
-                v["lines"],
-                anim_key="fisherman",
-                anim_scale=v.get("anim_scale", 1.0)
-            )
-        else:
-            visitor = Visitor(
-                v["name"],
-                v["world_x"], v["y"],
-                v.get("y_offset", 0),
-                v["lines"],
-                anim_folder=v.get("anim_folder"), anim_scale=v.get("anim_scale", 1.0)
-            )
+        visitor = Visitor(
+            v["name"], v["world_x"], v["y"],
+            v.get("y_offset", 0), v["lines"],
+            anim_folder=v.get("anim_folder"),
+            anim_scale=v.get("anim_scale", 1.0)
+        )
         _visitors.append(visitor)
 
 

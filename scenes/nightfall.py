@@ -25,7 +25,6 @@ _t = 0.0
 _phase = "intro"
 
 _interactables = []
-_visitors = []
 _font = None
 _wait_timer = 0.0  # counts down after outro dialogue finishes before switching to day
 _WAIT_DURATION = 5.0
@@ -37,7 +36,7 @@ _dim_alpha = 0
 _beacon_alpha = 1.0
 
 def init():
-    global done, _player, _t, _phase, _font, _interactables, _visitors
+    global done, _player, _t, _phase, _font, _interactables
     global _wait_timer, _night_timer, _dim_alpha, _beacon_alpha
     
     done = False
@@ -65,29 +64,6 @@ def init():
             anim_path=o.get("anim_path"), anim_scale=o.get("anim_scale", 1.0))
         _interactables.append(obj)
     
-    # Add visitors including fisherman
-    from entities.visitors import Visitor
-    _visitors = []
-    for v in constants.VISITORS:
-        if v["name"] == "Fisherman":
-            visitor = Visitor(
-                v["name"],
-                v["world_x"], v["y"],
-                v.get("y_offset", 0),
-                v["lines"],
-                anim_key="fisherman",
-                anim_scale=v.get("anim_scale", 1.0)
-            )
-        else:
-            visitor = Visitor(
-                v["name"],
-                v["world_x"], v["y"],
-                v.get("y_offset", 0),
-                v["lines"],
-                anim_folder=v.get("anim_folder"), anim_scale=v.get("anim_scale", 1.0)
-            )
-        _visitors.append(visitor)
-        
     dialogue.show(
         constants.SCRIPTS.get(day_cycle.day, constants.FALLBACK_NIGHT_SCRIPT),
         style="thought", default_speaker="player"
@@ -134,7 +110,7 @@ def handle_event(event):
 
     if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
         if _phase == "roaming" and not dialogue.active():
-            for obj in _interactables + _visitors:
+            for obj in _interactables:
                 if obj.handle_click(event.pos, player._world_offset, day_cycle.day):
                     break
 
@@ -148,7 +124,7 @@ def update(dt):
         player.update(_player, dt)
         if _phase == "roaming":
             mouse_pos = pygame.mouse.get_pos()
-            for obj in _interactables + _visitors:
+            for obj in _interactables:
                 obj.update(mouse_pos, player._world_offset)
             
             if not minigame_overlay.is_blocking():
@@ -223,11 +199,8 @@ def draw(screen):
         inner_glow_alpha=ia, inner_glow_alpha_pulse=int(26 * _beacon_alpha),
         core_radius=int(40 * max(0.05, _beacon_alpha)),
     )
-    for obj in _interactables + _visitors:
-        if obj.name == "Fisherman":
-            obj.draw(screen, player._world_offset, _font, flip=True)
-        else:
-            obj.draw(screen, player._world_offset, _font)
+    for obj in _interactables:
+        obj.draw(screen, player._world_offset, _font)
     player.draw(screen, _player)
     
     if _dim_alpha > 0:
