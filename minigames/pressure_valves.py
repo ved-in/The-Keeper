@@ -1,5 +1,5 @@
 """
-Cool Down Engine — Pressure Valves minigame.
+Cool Down Engine  Pressure Valves minigame.
 
 Five pressure valves are shown, each with a pressure value. Click them in
 ascending pressure order (lowest to highest) to safely vent the system.

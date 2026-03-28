@@ -8,11 +8,8 @@ You are the keeper of a lighthouse in a world where the sun never fully sets. Th
 
 ## Done
 
-- Added emergency system
-- Added fix_wires, log_pressure minigames
-- Tasks panel for day and night
-- opening at the beach - need to wire up assets
-- added 3 more minigames. flip_breakers, manual_crank, pressure_valves
+- Game is playable now with full 10 days. Emergencies occur at night
+- At day 6, day and night will be merged to one, emergencies can occur
 
 ## To Add/Fix
 
@@ -22,6 +19,8 @@ You are the keeper of a lighthouse in a world where the sun never fully sets. Th
 - [ ] Need removal of old night_task code. Currently only emergencies are used in night
 - [ ] Need to wire up assets of fisherman, beach, sea, ships
 - [ ] Need assets for interactables
+- [ ] Need a system to make certain tasks as emergency in night if user didnt do them in day.
+- [ ] Prolly a lot of dead code here, needs removal ig
 
 ## Controls
 

@@ -8,8 +8,9 @@ import pygame
 import core.view as view
 from systems.minigame import Minigame
 
-DUST_COLS = 21
-DUST_ROWS = 12
+# was too long and boring. reduced number of cols and rows
+DUST_COLS = 14
+DUST_ROWS = 8
 
 
 class CleanLens(Minigame):
