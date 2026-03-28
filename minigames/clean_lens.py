@@ -21,12 +21,14 @@ class CleanLens(Minigame):
         self._dragging: bool = False
         self._dust: list[list[bool]] = []
         self._content_rect: pygame.Rect | None = None
+        self._rag_img = None
     
     def reset(self) -> None:
         super().reset()
         self._has_rag = False
         self._dragging = False
         self._dust = [[True] * DUST_COLS for _ in range(DUST_ROWS)]
+        self._rag_img = None
     
     def handle_event(self, event: pygame.event.Event) -> None:
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -78,17 +80,32 @@ class CleanLens(Minigame):
             hint_text, hint_col = "Lens is clean!", (172, 200, 150)
         self.draw_hint(screen, content_rect, hint_text, hint_col)
 
+        if self._rag_img is None:
+            try:
+                raw = pygame.image.load("assets/rug/rug.webp").convert_alpha()
+                self._rag_img = raw
+            except FileNotFoundError:
+                self._rag_img = False
+
         if not self._has_rag:
             rr = self._rag_rect()
-            pygame.draw.rect(screen, (180, 160, 130), rr, border_radius=view.scale(3))
+            if self._rag_img:
+                img = pygame.transform.scale(self._rag_img, (rr.width * 2, rr.height * 2))
+                screen.blit(img, (rr.centerx - img.get_width() // 2, rr.centery - img.get_height() // 2))
+            else:
+                pygame.draw.rect(screen, (180, 160, 130), rr, border_radius=view.scale(3))
             lbl = font.render("Rag", True, (240, 235, 210))
             screen.blit(lbl, (rr.centerx - lbl.get_width() // 2, rr.top - lbl.get_height() - view.scale(4)))
         else:
             mx, my = pygame.mouse.get_pos()
             rw, rh = view.scale(28), view.scale(18)
-            rag_surf = pygame.Surface((rw, rh), pygame.SRCALPHA)
-            rag_surf.fill((180, 160, 130, 200))
-            screen.blit(rag_surf, (mx - rw // 2, my - rh // 2))
+            if self._rag_img:
+                img = pygame.transform.scale(self._rag_img, (rw * 2, rh * 2))
+                screen.blit(img, (mx - img.get_width() // 2, my - img.get_height() // 2))
+            else:
+                rag_surf = pygame.Surface((rw, rh), pygame.SRCALPHA)
+                rag_surf.fill((180, 160, 130, 200))
+                screen.blit(rag_surf, (mx - rw // 2, my - rh // 2))
     
 
     def _rag_rect(self) -> pygame.Rect | None:

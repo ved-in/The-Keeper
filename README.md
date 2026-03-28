@@ -13,7 +13,7 @@ You are the keeper of a lighthouse in a world where the sun never fully sets. Th
 
 ## To Add/Fix
 
-- [ ] Need assets for interactables
+- [ ] Need fixing of storyline at many points
 
 ## Controls
 

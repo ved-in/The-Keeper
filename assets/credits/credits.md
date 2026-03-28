@@ -11,6 +11,6 @@ Fisherman, Beach Map -- [available here](https://craftpix.net/freebies/free-fish
 Ship -- [available here](https://stonegamesnh.itch.io/ship) -- License: None Provided
 ![alt text](ship_usage_details.png)
 
-Generator, Breaker, Book, sounds (except Dialogue Typing sound) -- [RudyDaBot](https://github.com/RudyDaBot)
+Generator, Breaker, Book, Rug, sounds (except Dialogue Typing sound) -- [RudyDaBot](https://github.com/RudyDaBot)
 
 Lighthouse, pointer -- [Omnimistic](https://github.com/omnimistic)

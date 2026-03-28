@@ -23,7 +23,7 @@ INTERACTABLES = [
     {
         "name": "Logbook",
         "world_x": 200,
-        "y": 375,
+        "y": 385,
         "w": 24,
         "h": 30,
         "lines": {
@@ -37,8 +37,8 @@ INTERACTABLES = [
         "name": "Generator",
         "world_x": -120,
         "y": 380,
-        "w": 12,
-        "h": 20,
+        "w": 48,
+        "h": 50,
         "lines": {
             1:         ["The generator hums unevenly.", "The wires are frayed."],
             3:         ["The cables look worse.", "Better replace them now."],
@@ -51,8 +51,8 @@ INTERACTABLES = [
         "name": "Breaker Box",
         "world_x": 450,
         "y": 370,
-        "w": 5,
-        "h": 5,
+        "w": 25,
+        "h": 25,
         "lines": {
             "default": ["The breaker panel is mounted to the wall.", "Some switches look tripped."],
         },
