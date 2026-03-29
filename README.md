@@ -174,9 +174,6 @@ MC -- [available here](https://ulerinn.itch.io/free-old-man) -- License: MIT Lic
 Scientist -- [available here](https://smithygames.itch.io/bouncy-scientist) -- License: Creative Commons Four (CC4)
 Fisherman, Beach Map -- [available here](https://craftpix.net/freebies/free-fishing-game-assets-pixel-art-pack) -- License: [freebies license](https://craftpix.net/file-licenses) (section 2)
 
-Ship -- [available here](https://stonegamesnh.itch.io/ship) -- License: None Provided
-![alt text](cred_ss/ship_usage_details.png)
-
 Generator, Breaker, Book, Rug, sounds (except Dialogue Typing sound) -- [RudyDaBot](https://github.com/RudyDaBot)
 
 Lighthouse, pointer -- [Omnimistic](https://github.com/omnimistic)
