@@ -1,3 +1,5 @@
+# Credits
+
 Dialogue Typing sound -- SD text 9.wav by jobro -- [available here](https://freesound.org/s/33560/) -- License: Attribution 3.0
 
 Background -- [available here](https://ansimuz.itch.io/magic-cliffs-environment) (ansimuz - itch.io) -- License: Creative Commons Zero (CC0)
